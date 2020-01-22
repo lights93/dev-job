@@ -20,5 +20,4 @@ public class KakaoRecruit {
 	private final String companyType; // 계열사
 	private final String tags; // 태그
 	private final String address; // 주소
-
 }

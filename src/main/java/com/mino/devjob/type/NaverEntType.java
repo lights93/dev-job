@@ -21,7 +21,7 @@ public enum NaverEntType {
 		return Arrays.stream(values())
 			.filter(a -> a.getCode().equals(code))
 			.findAny()
-			.orElseThrow(IllegalAccessError::new);
+			.orElseThrow(IllegalArgumentException::new);
 	}
 
 	@JsonValue
