@@ -15,7 +15,7 @@ public enum NaverEntType {
 	INTERN("004", "인턴");
 
 	private final String code;
-	private final String name;
+	private final String type;
 
 	public static NaverEntType getByCode(String code) {
 		return Arrays.stream(values())
@@ -25,7 +25,7 @@ public enum NaverEntType {
 	}
 
 	@JsonValue
-	public String getName() {
-		return name;
+	public String getType() {
+		return type;
 	}
 }

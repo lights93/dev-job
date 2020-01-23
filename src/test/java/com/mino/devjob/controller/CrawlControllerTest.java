@@ -1,6 +1,6 @@
 package com.mino.devjob.controller;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -14,9 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import com.mino.devjob.model.KakaoRecruit;
+import com.mino.devjob.model.Recruit;
 import com.mino.devjob.service.CrawlKakaoService;
 import com.mino.devjob.service.CrawlService;
+import com.mino.devjob.type.CompanyType;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -24,7 +25,7 @@ import reactor.test.StepVerifier;
 @WebFluxTest(CrawlController.class)
 class CrawlControllerTest {
 	@MockBean
-	private Map<String, CrawlService> crawlServiceMap;
+	private Map<CompanyType, CrawlService> crawlServiceMap;
 
 	@Mock
 	private CrawlService crawlService = new CrawlKakaoService();
@@ -33,43 +34,73 @@ class CrawlControllerTest {
 	private WebTestClient webTestClient;
 
 	@Test
-	void crawl_SUCCESS() throws IOException {
-		KakaoRecruit kakaoRecruit = KakaoRecruit.builder().title("title").build();
-		Flux<KakaoRecruit> kakaoRecruits = Flux.just(kakaoRecruit);
+	void crawl_SUCCESS() {
+		Recruit recruit = Recruit.builder().title("title").build();
+		Flux<Recruit> recruits = Flux.just(recruit);
 
-		String company = "test";
-
-		Mockito.when(crawlServiceMap.containsKey(company))
-			.thenReturn(true);
-
-		Mockito.when(crawlServiceMap.get(company))
+		Mockito.when(crawlServiceMap.get(CompanyType.KAKAO))
 			.thenReturn(crawlService);
 
 		Mockito.when(crawlService.crawl())
-			.thenReturn(kakaoRecruits);
+			.thenReturn(recruits);
 
-		Flux<KakaoRecruit> responseBody = webTestClient.get()
-			.uri("/api/crawl/" + company)
+		Flux<Recruit> responseBody = webTestClient.get()
+			.uri("/api/crawl/" + CompanyType.KAKAO.name())
 			.exchange()
 			.expectStatus().isOk()
-			.returnResult(KakaoRecruit.class)
+			.returnResult(Recruit.class)
 			.getResponseBody();
 
 		StepVerifier.create(responseBody)
-			.expectNext(kakaoRecruit)
+			.expectNext(recruit)
+			.verifyComplete();
+	}
+
+	@Test
+	void crawl_SUCCESS_ALL() {
+		Recruit recruit = Recruit.builder().title("title").build();
+		Flux<Recruit> recruits = Flux.just(recruit);
+
+		Mockito.when(crawlServiceMap.values())
+			.thenReturn(List.of(crawlService));
+
+		Mockito.when(crawlService.crawl())
+			.thenReturn(recruits);
+
+		Flux<Recruit> responseBody = webTestClient.get()
+			.uri("/api/crawl/" + CompanyType.ALL.name())
+			.exchange()
+			.expectStatus().isOk()
+			.returnResult(Recruit.class)
+			.getResponseBody();
+
+		StepVerifier.create(responseBody)
+			.expectNext(recruit)
 			.verifyComplete();
 	}
 
 	@Test
 	void crawl_FAIL() {
-		String company = "test";
-
-		Mockito.when(crawlServiceMap.containsKey(company))
-			.thenReturn(false);
+		String company = "FAIL";
 
 		webTestClient.get()
 			.uri("/api/crawl/" + company)
 			.exchange()
 			.expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@Test
+	void getCompaines() {
+		Flux<CompanyType> responseBody = webTestClient.get()
+			.uri("/api/companies/")
+			.exchange()
+			.expectStatus().isOk()
+			.returnResult(CompanyType.class)
+			.getResponseBody();
+
+		StepVerifier.create(responseBody)
+			.expectNext(CompanyType.ALL)
+			.expectNextCount(CompanyType.values().length - 1)
+			.verifyComplete();
 	}
 }

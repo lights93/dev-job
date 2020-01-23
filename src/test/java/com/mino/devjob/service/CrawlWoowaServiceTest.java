@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.dto.WoowaRecruitDto;
-import com.mino.devjob.model.WoowaRecruit;
+import com.mino.devjob.model.Recruit;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -36,10 +36,10 @@ class CrawlWoowaServiceTest {
 
 		Mockito.when(mapper.readValue(Mockito.anyString(), Mockito.any(Class.class))).thenReturn(woowaRecruitDtos);
 
-		Flux<WoowaRecruit> woowaRecruitFlux = crawlWoowaService.crawl();
+		Flux<Recruit> woowaRecruitFlux = crawlWoowaService.crawl();
 
 		StepVerifier.create(woowaRecruitFlux)
-			.expectNext(woowaRecruitDto.toWoowaRecruit())
+			.expectNext(woowaRecruitDto.toRecruit())
 			.verifyComplete();
 	}
 }

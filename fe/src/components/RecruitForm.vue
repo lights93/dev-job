@@ -19,8 +19,8 @@
                 <b-form-input id="input-type" v-model="form.jobType" size="sm"></b-form-input>
             </b-form-group>
 
-            <b-form-group label-cols="4" label-cols-lg="2" label="링크" label-for="input-link" label-size="sm">
-                <b-form-input id="input-link" v-model="form.link" size="sm"></b-form-input>
+            <b-form-group label-cols="4" label-cols-lg="2" label="태그" label-for="input-link" label-size="sm">
+                <b-form-input id="input-link" v-model="form.tags" size="sm"></b-form-input>
             </b-form-group>
 
             <!--<b-form-group label-cols="4" label-cols-lg="2" label="종료일" label-for="input-date" label-size="sm">-->
@@ -36,16 +36,16 @@
 <script>
     export default {
         name: "recruitForm",
+        props: ["companies"],
         data() {
             return {
                 form: {
-                    company: 'All',
+                    company: 'ALL',
                     title: '',
                     jobType: '',
-                    link: ''
-                    // term: ''
+                    tags: '',
+                    term: ''
                 },
-                companies: ['All', 'Naver', 'Kakao', 'Line', 'Woowa'],
             }
         },
         methods: {
@@ -56,11 +56,11 @@
             onReset(evt) {
                 evt.preventDefault();
                 // Reset our form values
-                this.form.company = 'All';
+                this.form.company = 'ALL';
                 this.form.jobType = '';
                 this.form.title = '';
-                this.form.link = '';
-                // this.form.term = '';
+                this.form.tags = '';
+                this.form.term = '';
             },
         }
     }

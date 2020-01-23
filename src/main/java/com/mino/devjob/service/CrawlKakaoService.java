@@ -1,6 +1,5 @@
 package com.mino.devjob.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -13,15 +12,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import com.mino.devjob.model.KakaoRecruit;
+import com.mino.devjob.model.Recruit;
+import com.mino.devjob.type.CompanyType;
+import lombok.SneakyThrows;
 import reactor.core.publisher.Flux;
 
-@Service("kakao")
-public class CrawlKakaoService implements CrawlService<KakaoRecruit> {
+@Service("KAKAO")
+public class CrawlKakaoService implements CrawlService {
 	private static final String KAKAO_RECRUIT_URL = "https://careers.kakao.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
-	public Flux<KakaoRecruit> crawl() throws IOException {
+	@SneakyThrows
+	public Flux<Recruit> crawl() {
 		Document document = Jsoup.connect(KAKAO_RECRUIT_URL + "/jobs")
 			.followRedirects(false)
 			.method(Connection.Method.GET)
@@ -43,11 +45,9 @@ public class CrawlKakaoService implements CrawlService<KakaoRecruit> {
 			.map(i -> {
 				Element detail = details.get(i);
 				Elements detailTexts = detail.select("span span:not(.txt_bar)");
-				String address = "";
 				String jobType = "";
 				String term = "";
 				if (detailTexts.size() > 0) {
-					address = detailTexts.get(0).text().trim();
 					jobType = detailTexts.get(1).text().trim();
 					term = detailTexts.get(2).text().trim();
 				}
@@ -67,14 +67,19 @@ public class CrawlKakaoService implements CrawlService<KakaoRecruit> {
 
 				String tags = String.join(", ", tagTexts.eachText());
 
-				String link = KAKAO_RECRUIT_URL + links.get(i).attr("href");
+				String link = KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
 
-				return KakaoRecruit.builder()
-					.company("kakao")
+				int startIdx = link.indexOf("/jobs/P-") + 8;
+				int endIdx = link.indexOf("?part");
+
+				int index = Integer.parseInt(link.substring(startIdx, endIdx));
+
+				return Recruit.builder()
+					.index(index)
+					.company(CompanyType.KAKAO.name())
 					.title(titles.get(i).text())
 					.companyType(companyTypes.get(i).text())
 					.link(link)
-					.address(address)
 					.jobType(jobType)
 					.term(end)
 					.tags(tags)

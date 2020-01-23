@@ -1,6 +1,6 @@
 <template>
     <div>
-        <recruit-form @searchRecruits="searchRecruits"/>
+        <recruit-form :companies="companies" @searchRecruits="searchRecruits"/>
         <br/>
         <recruit-list :recruits="recruits"/>
     </div>
@@ -15,16 +15,30 @@
         components: {RecruitForm, RecruitList},
         data: function() {
             return {
-                recruits: []
+                recruits: [],
+                companies: []
             }
+        },
+        mounted: function () {
+            this.getCompanies();
         },
         methods: {
             searchRecruits: function (params) {
                 const vm = this;
-                this.axios.get("/api/crawl/" + params.company.toLowerCase())
+                this.axios.get("/api/crawl/" + params.company)
                     .then((result) => {
                         vm.recruits = result.data;
-                    })
+                    });
+            },
+
+            getCompanies: function () {
+                const vm = this;
+
+                this.axios.get("/api/companies/")
+                    .then((result) => {
+                        vm.companies = result.data;
+                    });
+
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.mino.devjob.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
@@ -13,19 +12,22 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import com.mino.devjob.model.LineRecruit;
+import com.mino.devjob.model.Recruit;
+import com.mino.devjob.type.CompanyType;
+import lombok.SneakyThrows;
 import reactor.core.publisher.Flux;
 
-@Service("line")
-public class CrawlLineService implements CrawlService<LineRecruit> {
+@Service("LINE")
+public class CrawlLineService implements CrawlService {
 	private static final String LINE_RECRUIT_URL = "https://recruit.linepluscorp.com";
 	private static final Pattern SQUARE_BRACKETS_PATTERN = Pattern.compile("\\[(.*?)\\]");
 	private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d.*");
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
+	@SneakyThrows
 	@Override
-	public Flux<LineRecruit> crawl() throws IOException {
+	public Flux<Recruit> crawl() {
 		Document document = Jsoup.connect(LINE_RECRUIT_URL + "/lineplus/career/list")
 			.method(Connection.Method.GET)
 			.data("classId", "148")
@@ -39,6 +41,12 @@ public class CrawlLineService implements CrawlService<LineRecruit> {
 			.map(tds -> {
 				Element titleEl = tds.get(1);
 				String link = LINE_RECRUIT_URL + titleEl.select("a").attr("href").trim();
+
+				int startIdx = link.indexOf("/detail/") + 8;
+				int endIdx = link.indexOf("?classId");
+
+				int index = Integer.parseInt(link.substring(startIdx, endIdx));
+
 				String title = titleEl.text().trim();
 
 				String jobType = tds.get(3).text().trim();
@@ -58,13 +66,15 @@ public class CrawlLineService implements CrawlService<LineRecruit> {
 					companyType = matcher.group(1);
 				}
 
-				return LineRecruit.builder()
-					.company("line")
+				return Recruit.builder()
+					.index(index)
+					.company(CompanyType.LINE.name())
 					.title(title)
 					.link(link)
 					.jobType(jobType)
 					.term(end)
 					.companyType(companyType)
+					.tags("")
 					.build();
 			});
 

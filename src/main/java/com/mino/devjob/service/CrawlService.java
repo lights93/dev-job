@@ -1,9 +1,8 @@
 package com.mino.devjob.service;
 
-import java.io.IOException;
-
+import com.mino.devjob.model.Recruit;
 import reactor.core.publisher.Flux;
 
-public interface CrawlService<T> {
-	Flux<T> crawl() throws IOException;
+public interface CrawlService {
+	Flux<Recruit> crawl();
 }

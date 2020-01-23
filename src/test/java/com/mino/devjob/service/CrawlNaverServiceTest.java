@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.dto.NaverRecruitDto;
-import com.mino.devjob.model.NaverRecruit;
+import com.mino.devjob.model.Recruit;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -37,10 +37,10 @@ class CrawlNaverServiceTest {
 
 		Mockito.when(mapper.readValue(Mockito.anyString(), Mockito.any(Class.class))).thenReturn(naverRecruitDtos);
 
-		Flux<NaverRecruit> naverRecruitList = crawlNaver.crawl();
+		Flux<Recruit> naverRecruitList = crawlNaver.crawl();
 
 		StepVerifier.create(naverRecruitList)
-			.expectNext(naverRecruitDto.toNaverRecruit())
+			.expectNext(naverRecruitDto.toRecruit())
 			.verifyComplete();
 	}
 }
