@@ -2,6 +2,11 @@ package com.mino.devjob.model;
 
 import java.time.LocalDate;
 
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,8 +16,13 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
+@Document(collection = "recruit")
 public class Recruit {
+	@Id
+	private ObjectId objectId;
+	@Indexed
 	private final long index;
+	@Indexed
 	private final String company;
 	private final String title;
 	private final String link; // 링크
