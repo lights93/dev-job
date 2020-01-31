@@ -13,17 +13,22 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import com.mino.devjob.model.Recruit;
+import com.mino.devjob.repository.RecruitRepository;
 import com.mino.devjob.type.CompanyType;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import reactor.core.publisher.Flux;
 
 @Service("LINE")
+@RequiredArgsConstructor
 public class CrawlLineService implements CrawlService {
 	private static final String LINE_RECRUIT_URL = "https://recruit.linepluscorp.com";
 	private static final Pattern SQUARE_BRACKETS_PATTERN = Pattern.compile("\\[(.*?)\\]");
 	private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d.*");
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+	private final RecruitRepository recruitRepository;
 
 	@SneakyThrows
 	@Override
@@ -76,7 +81,10 @@ public class CrawlLineService implements CrawlService {
 					.companyType(companyType)
 					.tags("")
 					.build();
-			});
+			})
+			.filterWhen(r -> recruitRepository.existsByIndexAndCompany(r.getIndex(), r.getCompany())
+				.map(b -> !b))
+			.flatMap(recruitRepository::save);
 
 	}
 }

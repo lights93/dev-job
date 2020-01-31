@@ -13,7 +13,7 @@
     export default {
         name: 'Recruit',
         components: {RecruitForm, RecruitList},
-        data: function() {
+        data: function () {
             return {
                 recruits: [],
                 companies: []
@@ -25,7 +25,7 @@
         methods: {
             searchRecruits: function (params) {
                 const vm = this;
-                this.axios.get("/api/crawl/" + params.company)
+                this.axios.get("/api/recruits/" + params.company)
                     .then((result) => {
                         vm.recruits = result.data;
                     });
@@ -38,7 +38,6 @@
                     .then((result) => {
                         vm.companies = result.data;
                     });
-
             }
         }
     }
