@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo
+  name: mongo-db
   labels:
-    app: mongo
+    app: mongo-db
 spec:
   ports:
   - port: 27017
@@ -12,7 +12,7 @@ spec:
   externalTrafficPolicy: Local
   type: LoadBalancer
   selector:
-    app: mongo
+    app: mongo-db
 
 ---
 
