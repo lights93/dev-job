@@ -15,7 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.mino.devjob.model.Recruit;
-import com.mino.devjob.service.CrawlKakaoService;
 import com.mino.devjob.service.CrawlService;
 import com.mino.devjob.type.CompanyType;
 import reactor.core.publisher.Flux;
@@ -28,7 +27,7 @@ class CrawlControllerTest {
 	private Map<CompanyType, CrawlService> crawlServiceMap;
 
 	@Mock
-	private CrawlService crawlService = new CrawlKakaoService();
+	private CrawlService crawlService;
 
 	@Autowired
 	private WebTestClient webTestClient;

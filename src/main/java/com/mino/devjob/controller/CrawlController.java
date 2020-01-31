@@ -20,10 +20,11 @@ import reactor.core.publisher.Flux;
 public class CrawlController {
 	private final Map<CompanyType, CrawlService> crawlServiceMap;
 
+	// TODO 배치 or 스케줄링
 	@GetMapping("crawl/{company}")
 	@ApiOperation(value = "크롤링 서비스")
 	public Flux<Recruit> crawl(@PathVariable String company) {
-		CompanyType companyType = CompanyType.valueOf(company);
+		CompanyType companyType = CompanyType.valueOf(company.toUpperCase());
 
 		if (companyType == CompanyType.ALL) {
 			return Flux.fromIterable(crawlServiceMap.values())

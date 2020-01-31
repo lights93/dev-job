@@ -13,14 +13,19 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import com.mino.devjob.model.Recruit;
+import com.mino.devjob.repository.RecruitRepository;
 import com.mino.devjob.type.CompanyType;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import reactor.core.publisher.Flux;
 
 @Service("KAKAO")
+@RequiredArgsConstructor
 public class CrawlKakaoService implements CrawlService {
 	private static final String KAKAO_RECRUIT_URL = "https://careers.kakao.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
+
+	private final RecruitRepository recruitRepository;
 
 	@SneakyThrows
 	public Flux<Recruit> crawl() {
@@ -84,6 +89,9 @@ public class CrawlKakaoService implements CrawlService {
 					.term(end)
 					.tags(tags)
 					.build();
-			});
+			})
+			.filterWhen(r -> recruitRepository.existsByIndexAndCompany(r.getIndex(), r.getCompany())
+				.map(b -> !b))
+			.flatMap(recruitRepository::save);
 	}
 }

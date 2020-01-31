@@ -12,7 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.dto.NaverRecruitDto;
 import com.mino.devjob.model.Recruit;
+import com.mino.devjob.repository.RecruitRepository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,6 +24,9 @@ class CrawlNaverServiceTest {
 
 	@Mock
 	private ObjectMapper mapper;
+
+	@Mock
+	private RecruitRepository recruitRepository;
 
 	@Test
 	void crawl() throws IOException {
@@ -35,12 +40,30 @@ class CrawlNaverServiceTest {
 			.build();
 		NaverRecruitDto[] naverRecruitDtos = {naverRecruitDto};
 
-		Mockito.when(mapper.readValue(Mockito.anyString(), Mockito.any(Class.class))).thenReturn(naverRecruitDtos);
+		Recruit recruit = naverRecruitDto.toRecruit();
+
+		Mockito.when(mapper.readValue(Mockito.anyString(), Mockito.any(Class.class)))
+			.thenReturn(naverRecruitDtos);
+
+		Mockito.when(recruitRepository.existsByIndexAndCompany(Mockito.anyLong(), Mockito.anyString()))
+			.thenReturn(Mono.just(false));
+
+		Mockito.when(recruitRepository.save(Mockito.any(Recruit.class)))
+			.thenReturn(Mono.just(recruit));
 
 		Flux<Recruit> naverRecruitList = crawlNaver.crawl();
 
 		StepVerifier.create(naverRecruitList)
-			.expectNext(naverRecruitDto.toRecruit())
+			.expectNext(recruit)
 			.verifyComplete();
+
+		Mockito.when(recruitRepository.existsByIndexAndCompany(Mockito.anyLong(), Mockito.anyString()))
+			.thenReturn(Mono.just(true));
+
+		naverRecruitList = crawlNaver.crawl();
+
+		StepVerifier.create(naverRecruitList)
+			.verifyComplete();
+
 	}
 }
