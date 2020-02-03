@@ -29,8 +29,9 @@ public class CrawlNaverService implements CrawlService {
 			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 			.data("classNm", "developer")
 			.data("startNum", "1")
-			.data("endNum", "30")
+			.data("endNum", "300")
 			.ignoreContentType(true)
+			.maxBodySize(0)
 			.execute()
 			.body();
 
