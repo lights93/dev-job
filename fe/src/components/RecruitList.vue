@@ -1,6 +1,6 @@
 <template>
     <b-container fluid>
-        <b-table striped hover :items="items" :fields="fields" responsive="sm">
+        <b-table striped hover :items="items" :fields="fields" responsive="sm" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc">
             <template v-slot:cell(link)="data">
                 <b-link :href="data.item.link" target="_blank">
                     Link
@@ -23,8 +23,20 @@
         props: ["recruits"],
         data() {
             return {
-                fields: ["company", "title", "jobType", "term", "companyType", "tags", "link", "favorite"],
-                items: []
+                fields: [
+                    {key: "company", sortable: true},
+                    {key: "title", sortable: true},
+                    {key: "jobType", sortable: true},
+                    {key: "term", sortable: true},
+                    {key: "companyType", sortable: true},
+                    {key: "tags", sortable: false},
+                    {key: "link", sortable: false},
+                    {key: "favorite", sortable: true}
+                ],
+                items: [],
+                sortBy: "jobType",
+                sortDesc: false
+
             }
         },
         watch: {
