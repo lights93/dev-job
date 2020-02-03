@@ -1,6 +1,6 @@
 <template>
     <b-container fluid>
-        <b-table striped hover :items="items" :fields="fields" show-empty empty-text="조회 결과가 없습니다." responsive="sm">
+        <b-table striped hover :items="items" :fields="fields" responsive="sm">
             <template v-slot:cell(link)="data">
                 <b-link :href="data.item.link" target="_blank">
                     Link
@@ -23,7 +23,7 @@
         props: ["recruits"],
         data() {
             return {
-                fields: ["company", "title", "link", "jobType", "term", "companyType", "tags", "favorite"],
+                fields: ["company", "title", "jobType", "term", "companyType", "tags", "link", "favorite"],
                 items: []
             }
         },
@@ -36,11 +36,10 @@
             clickFavorite: function (index) {
                 var item = this.items[index];
                 item.favorite = !item.favorite;
-                this.items.splice(index, 1, item);
 
-                this.axios.put("/api/recruits", this.items[index])
+                this.axios.put("/api/recruits", item)
                     .then(() => {
-                        // do nothing
+                        this.items.splice(index, 1, item);
                     })
                     .catch(error => {
                         alert(error);

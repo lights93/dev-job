@@ -1,8 +1,8 @@
 <template>
     <div>
-        <recruit-form :companies="companies" @searchRecruits="searchRecruits"/>
+        <recruit-form :companies="companies" @searchRecruits="searchRecruits" @filterList="filterList"/>
         <br/>
-        <recruit-list :recruits="recruits"/>
+        <recruit-list :recruits="filteredRecruits"/>
     </div>
 </template>
 
@@ -16,6 +16,7 @@
         data: function () {
             return {
                 recruits: [],
+                filteredRecruits: [],
                 companies: []
             }
         },
@@ -25,9 +26,53 @@
         methods: {
             searchRecruits: function (params) {
                 const vm = this;
-                this.axios.get("/api/recruits/" + params.company)
+                vm.axios.get("/api/recruits/" + params.company)
                     .then((result) => {
                         vm.recruits = result.data;
+                        vm.filterList(params);
+                    });
+            },
+
+            filterList: function (params) {
+                const favorite = params['favorite'];
+                const queryTerm = new Date(params['term']);
+
+                delete params['company'];
+                delete params['favorite'];
+                delete params['term'];
+
+                Object.keys(params).forEach((key) => (params[key].trim() === '') && delete params[key]);
+
+                this.filteredRecruits = this.recruits
+                    .filter(recruit => {
+                        // company: 'ALL',
+                        //     title: '',
+                        //     jobType: '',
+                        //     tags: '',
+                        //     term: '',
+                        //     favorite: ''
+                        const keys = Object.keys(params);
+                        for (const key of keys) {
+                            if (!recruit[key]) {
+                                return false;
+                            }
+
+                            const regex = new RegExp(params[key], "i");
+
+                            if (!regex.test(recruit[key])) {
+                                return false;
+                            }
+                        }
+
+                        const term = new Date(recruit['term']);
+
+                        if(term > queryTerm) {
+                            return false;
+                        }
+
+                        return favorite === 'ALL' || favorite === recruit['favorite'].toString();
+
+
                     });
             },
 
