@@ -23,16 +23,13 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 public class CrawlNaverService implements CrawlService {
 	private final ObjectMapper mapper;
-	private final RecruitRepository recruitRepository;
 
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getNaverRecruits)
 			.subscribeOn(Schedulers.elastic())
 			.flatMapMany(Flux::fromArray)
-			.map(NaverRecruitDto::toRecruit)
-			.filterWhen(r -> recruitRepository.existsByIndexAndCompany(r.getIndex(), r.getCompany()).map(b -> !b))
-			.flatMap(recruitRepository::save);
+			.map(NaverRecruitDto::toRecruit);
 	}
 
 	private NaverRecruitDto[] getNaverRecruits() {

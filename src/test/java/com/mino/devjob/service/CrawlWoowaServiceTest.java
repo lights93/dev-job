@@ -13,9 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.dto.WoowaRecruitDto;
 import com.mino.devjob.model.Recruit;
-import com.mino.devjob.repository.RecruitRepository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,9 +23,6 @@ class CrawlWoowaServiceTest {
 
 	@Mock
 	private ObjectMapper mapper;
-
-	@Mock
-	private RecruitRepository recruitRepository;
 
 	@Test
 	void crawl() throws IOException {
@@ -43,24 +38,10 @@ class CrawlWoowaServiceTest {
 
 		Mockito.when(mapper.readValue(Mockito.anyString(), Mockito.any(Class.class))).thenReturn(woowaRecruitDtos);
 
-		Mockito.when(recruitRepository.existsByIndexAndCompany(Mockito.anyLong(), Mockito.anyString()))
-			.thenReturn(Mono.just(false));
-
-		Mockito.when(recruitRepository.save(Mockito.any(Recruit.class)))
-			.thenReturn(Mono.just(recruit));
-
 		Flux<Recruit> woowaRecruitFlux = crawlWoowaService.crawl();
 
 		StepVerifier.create(woowaRecruitFlux)
 			.expectNext(recruit)
-			.verifyComplete();
-
-		Mockito.when(recruitRepository.existsByIndexAndCompany(Mockito.anyLong(), Mockito.anyString()))
-			.thenReturn(Mono.just(true));
-
-		woowaRecruitFlux = crawlWoowaService.crawl();
-
-		StepVerifier.create(woowaRecruitFlux)
 			.verifyComplete();
 	}
 }

@@ -15,4 +15,6 @@ public interface RecruitRepository extends ReactiveMongoRepository<Recruit, Obje
 	Flux<Recruit> findAllByCompany(String company);
 
 	Mono<Recruit> findByIndexAndCompany(Long index, String company);
+
+	Flux<Recruit> findAllByFavorite(boolean favorite);
 }

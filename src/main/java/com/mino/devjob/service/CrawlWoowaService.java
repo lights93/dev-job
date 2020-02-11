@@ -23,17 +23,13 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 public class CrawlWoowaService implements CrawlService {
 	private final ObjectMapper mapper;
-	private final RecruitRepository recruitRepository;
 
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getWoowaRecruits)
 			.subscribeOn(Schedulers.elastic())
 			.flatMapMany(Flux::fromArray)
-			.map(WoowaRecruitDto::toRecruit)
-			.filterWhen(r -> recruitRepository.existsByIndexAndCompany(r.getIndex(), r.getCompany())
-				.map(b -> !b))
-			.flatMap(recruitRepository::save);
+			.map(WoowaRecruitDto::toRecruit);
 	}
 
 	private WoowaRecruitDto[] getWoowaRecruits() {
