@@ -32,8 +32,6 @@ public class CrawlLineService implements CrawlService {
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
-	private final RecruitRepository recruitRepository;
-
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getLineDocument)
@@ -41,9 +39,7 @@ public class CrawlLineService implements CrawlService {
 			.map(document -> document.select(".jobs_table tbody tr"))
 			.flatMapMany(Flux::fromIterable)
 			.map(row -> row.select("td"))
-			.map(this::buildLineRecruit)
-			.filterWhen(r -> recruitRepository.existsByIndexAndCompany(r.getIndex(), r.getCompany()).map(b -> !b))
-			.flatMap(recruitRepository::save);
+			.map(this::buildLineRecruit);
 	}
 
 	private Document getLineDocument() {

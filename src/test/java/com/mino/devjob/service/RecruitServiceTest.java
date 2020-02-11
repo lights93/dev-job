@@ -2,6 +2,8 @@ package com.mino.devjob.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +26,7 @@ class RecruitServiceTest {
 	private RecruitRepository recruitRepository;
 
 	@Test
-	void getRecruits() {
+	void getRecruitsCompany() {
 		Recruit recruit = Recruit.builder().title("title").build();
 		Recruit recruit2 = Recruit.builder().title("title2").build();
 
@@ -77,6 +79,43 @@ class RecruitServiceTest {
 
 		StepVerifier.create(recruitService.update(recruit))
 			.expectNext(recruit2)
+			.verifyComplete();
+	}
+
+	@Test
+	void getRecruitsBoolean() {
+		Recruit recruit = Recruit.builder().title("title").build();
+
+		Flux<Recruit> recruitFlux = Flux.just(recruit);
+
+		Mockito.when(recruitRepository.findAllByFavorite(Mockito.anyBoolean()))
+			.thenReturn(recruitFlux);
+
+		StepVerifier.create(recruitService.getRecruits(true))
+			.expectNext(recruit)
+			.verifyComplete();
+	}
+
+	@Test
+	void deleteAll() {
+		Mockito.when(recruitRepository.deleteAll())
+			.thenReturn(Mono.empty());
+
+		StepVerifier.create(recruitService.deleteAll())
+			.verifyComplete();
+	}
+
+	@Test
+	void saveAll() {
+		Recruit recruit = Recruit.builder().title("title").build();
+
+		Flux<Recruit> recruitFlux = Flux.just(recruit);
+
+		Mockito.when(recruitRepository.saveAll(Mockito.anyList()))
+			.thenReturn(recruitFlux);
+
+		StepVerifier.create(recruitService.saveAll(List.of()))
+			.expectNext(recruit)
 			.verifyComplete();
 	}
 }

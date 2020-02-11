@@ -1,5 +1,7 @@
 package com.mino.devjob.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.mino.devjob.model.Recruit;
@@ -44,5 +46,17 @@ public class RecruitService {
 				.build()
 			)
 			.flatMap(recruitRepository::save);
+	}
+
+	public Flux<Recruit> getRecruits(boolean favorite) {
+		return recruitRepository.findAllByFavorite(favorite);
+	}
+
+	public Mono<Void> deleteAll() {
+		return recruitRepository.deleteAll();
+	}
+
+	public Flux<Recruit> saveAll(List<Recruit> recruits) {
+		return recruitRepository.saveAll(recruits);
 	}
 }

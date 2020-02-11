@@ -32,8 +32,6 @@ public class CrawlKakaoService implements CrawlService {
 	private static final String KAKAO_RECRUIT_URL = "https://careers.kakao.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
-	private final RecruitRepository recruitRepository;
-
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(() -> this.getKakaoDocument(1))
@@ -117,9 +115,6 @@ public class CrawlKakaoService implements CrawlService {
 					.term(end)
 					.tags(tags)
 					.build();
-			})
-			.filterWhen(r -> recruitRepository.existsByIndexAndCompany(r.getIndex(), r.getCompany())
-				.map(b -> !b))
-			.flatMap(recruitRepository::save);
+			});
 	}
 }
