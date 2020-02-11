@@ -34,8 +34,8 @@
                     {key: "favorite", sortable: true}
                 ],
                 items: [],
-                sortBy: "jobType",
-                sortDesc: false
+                sortBy: "favorite",
+                sortDesc: true
 
             }
         },
