@@ -7,7 +7,7 @@
                 </b-link>
             </template>
             <template v-slot:cell(favorite)="data">
-                <b-button size="sm" pill variant="outline-primary" @click="clickFavorite(data.index)">
+                <b-button size="sm" pill variant="outline-primary" @click="clickFavorite(data)">
                     <b-icon icon="star-fill" font-scale="1" v-if="data.item.favorite"></b-icon>
                     <b-icon icon="star" font-scale="1" v-else></b-icon>
                 </b-button>
@@ -45,7 +45,8 @@
             }
         },
         methods: {
-            clickFavorite: function (index) {
+            clickFavorite: function (data) {
+                var index = this.items.indexOf(data.item);
                 var item = this.items[index];
                 item.favorite = !item.favorite;
 
