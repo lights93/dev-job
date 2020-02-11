@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mino.devjob.service.CrawlService;
-import com.mino.devjob.type.CompanyType;
+import com.mino.devjob.recruit.service.CrawlService;
+import com.mino.devjob.recruit.type.CompanyType;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
