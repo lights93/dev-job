@@ -1,6 +1,7 @@
 package com.mino.devjob.recruit.service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -27,11 +28,13 @@ public class CrawlNaverService implements CrawlService {
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getNaverRecruits)
 			.subscribeOn(Schedulers.elastic())
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.flatMapMany(Flux::fromArray)
 			.map(NaverRecruitDto::toRecruit);
 	}
 
-	private NaverRecruitDto[] getNaverRecruits() {
+	private Optional<NaverRecruitDto[]> getNaverRecruits() {
 		try {
 			String body = Jsoup.connect("https://recruit.navercorp.com/naver/job/listJson")
 				.method(Connection.Method.POST)
@@ -44,10 +47,10 @@ public class CrawlNaverService implements CrawlService {
 				.execute()
 				.body();
 
-			return mapper.readValue(body, NaverRecruitDto[].class);
+			return Optional.ofNullable(mapper.readValue(body, NaverRecruitDto[].class));
 		} catch (IOException e) {
-			log.debug("naver parse error ", e);
-			throw new RuntimeException();
+			log.error("naver parse error ", e);
+			return Optional.empty();
 		}
 
 	}

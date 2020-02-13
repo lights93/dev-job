@@ -1,6 +1,7 @@
 package com.mino.devjob.recruit.service;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -27,11 +28,13 @@ public class CrawlWoowaService implements CrawlService {
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getWoowaRecruits)
 			.subscribeOn(Schedulers.elastic())
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.flatMapMany(Flux::fromArray)
 			.map(WoowaRecruitDto::toRecruit);
 	}
 
-	private WoowaRecruitDto[] getWoowaRecruits() {
+	private Optional<WoowaRecruitDto[]> getWoowaRecruits() {
 		try {
 			String body = Jsoup.connect("https://www.woowahan.com/jobapi/jobs/list?searchword=&cc=244001")
 				.method(Connection.Method.GET)
@@ -40,10 +43,10 @@ public class CrawlWoowaService implements CrawlService {
 				.execute()
 				.body();
 
-			return mapper.readValue(body, WoowaRecruitDto[].class);
+			return Optional.ofNullable(mapper.readValue(body, WoowaRecruitDto[].class));
 		} catch (IOException e) {
-			log.debug("woowa parse error ", e);
-			throw new RuntimeException();
+			log.error("woowa parse error ", e);
+			return Optional.empty();
 		}
 
 	}

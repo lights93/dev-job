@@ -3,6 +3,7 @@ package com.mino.devjob.recruit.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +36,8 @@ public class CrawlKakaoService implements CrawlService {
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(() -> this.getKakaoDocument(1))
 			.subscribeOn(Schedulers.elastic())
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.map(document -> document.select(".link_job.link_job1").text().trim())
 			.map(NUMBER_PART_PATTERN::matcher)
 			.filter(Matcher::find)
@@ -42,21 +45,23 @@ public class CrawlKakaoService implements CrawlService {
 			.flatMapMany(pages -> Flux.range(1, pages))
 			.flatMap(page -> Mono.fromCallable(() -> this.getKakaoDocument(page))
 				.subscribeOn(Schedulers.elastic()))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.flatMap(this::buildKakaoRecruit);
 	}
 
-	private Document getKakaoDocument(int page) {
+	private Optional<Document> getKakaoDocument(int page) {
 		try {
-			return Jsoup.connect(KAKAO_RECRUIT_URL + "/jobs")
+			return Optional.ofNullable(Jsoup.connect(KAKAO_RECRUIT_URL + "/jobs")
 				.followRedirects(false)
 				.method(Connection.Method.GET)
 				.data("part", "TECHNOLOGY")
 				.data("page", Integer.toString(page))
 				.execute()
-				.parse();
+				.parse());
 		} catch (IOException e) {
-			log.debug("kakao parse error");
-			throw new RuntimeException();
+			log.error("kakao parse error, page: {}", page, e);
+			return Optional.empty();
 		}
 	}
 

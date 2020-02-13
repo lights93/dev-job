@@ -3,6 +3,7 @@ package com.mino.devjob.book.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -34,22 +35,24 @@ public class CrawlYes24Service {
 			.map(Yes24CategoryType::getCode)
 			.flatMap(code -> Mono.fromCallable(() -> this.getYes24Document(code))
 				.subscribeOn(Schedulers.elastic()))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.flatMap(this::buildYes24Book);
 	}
 
-	private Document getYes24Document(String code) {
+	private Optional<Document> getYes24Document(String code) {
 		try {
-			return Jsoup.connect(YES24_URL + "/24/Category/Display/" + code)
+			return Optional.ofNullable(Jsoup.connect(YES24_URL + "/24/Category/Display/" + code)
 				.followRedirects(false)
 				.method(Connection.Method.GET)
 				.data("ParamSortTp", "04") // 신상품 순 정렬
 				.data("FetchSize", "100")
 				.data("pageNumber", "1")
 				.execute()
-				.parse();
+				.parse());
 		} catch (IOException e) {
-			log.debug("yes24 parse error");
-			throw new RuntimeException();
+			log.error("yes24 parse error, code: {}", code, e);
+			return Optional.empty();
 		}
 	}
 

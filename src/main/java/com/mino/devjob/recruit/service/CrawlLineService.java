@@ -3,6 +3,7 @@ package com.mino.devjob.recruit.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,22 +36,24 @@ public class CrawlLineService implements CrawlService {
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getLineDocument)
 			.subscribeOn(Schedulers.elastic())
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.map(document -> document.select(".jobs_table tbody tr"))
 			.flatMapMany(Flux::fromIterable)
 			.map(row -> row.select("td"))
 			.map(this::buildLineRecruit);
 	}
 
-	private Document getLineDocument() {
+	private Optional<Document> getLineDocument() {
 		try {
-			return Jsoup.connect(LINE_RECRUIT_URL + "/lineplus/career/list")
+			return Optional.ofNullable(Jsoup.connect(LINE_RECRUIT_URL + "/lineplus/career/list")
 				.method(Connection.Method.GET)
 				.data("classId", "148")
 				.execute()
-				.parse();
+				.parse());
 		} catch (IOException e) {
-			log.debug("line parse error ", e);
-			throw new RuntimeException();
+			log.error("line parse error ", e);
+			return Optional.empty();
 		}
 	}
 
