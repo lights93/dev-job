@@ -29,7 +29,7 @@ public class CrawlNaverService implements CrawlService {
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getNaverRecruits)
-			.subscribeOn(Schedulers.elastic())
+			.subscribeOn(Schedulers.boundedElastic())
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.flatMapMany(Flux::fromIterable)

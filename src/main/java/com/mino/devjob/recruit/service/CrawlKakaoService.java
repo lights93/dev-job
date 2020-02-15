@@ -34,7 +34,7 @@ public class CrawlKakaoService implements CrawlService {
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(() -> this.getKakaoDocument(1))
-			.subscribeOn(Schedulers.elastic())
+			.subscribeOn(Schedulers.boundedElastic())
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.map(document -> document.select(".link_job.link_job1").text().trim())
@@ -43,7 +43,7 @@ public class CrawlKakaoService implements CrawlService {
 			.map(matcher -> (Integer.parseInt(matcher.group(0)) + 10 - 1) / 10)
 			.flatMapMany(pages -> Flux.range(1, pages))
 			.flatMap(page -> Mono.fromCallable(() -> this.getKakaoDocument(page))
-				.subscribeOn(Schedulers.elastic()))
+				.subscribeOn(Schedulers.boundedElastic()))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.flatMap(this::buildKakaoRecruit);

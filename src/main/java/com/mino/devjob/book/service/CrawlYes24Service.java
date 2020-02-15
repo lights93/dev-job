@@ -33,7 +33,7 @@ public class CrawlYes24Service {
 		return Flux.fromArray(Yes24CategoryType.values())
 			.map(Yes24CategoryType::getCode)
 			.flatMap(code -> Mono.fromCallable(() -> this.getYes24Document(code))
-				.subscribeOn(Schedulers.elastic()))
+				.subscribeOn(Schedulers.boundedElastic()))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.flatMap(this::buildYes24Book);

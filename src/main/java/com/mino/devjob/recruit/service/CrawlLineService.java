@@ -35,7 +35,7 @@ public class CrawlLineService implements CrawlService {
 	@Override
 	public Flux<Recruit> crawl() {
 		return Mono.fromCallable(this::getLineDocument)
-			.subscribeOn(Schedulers.elastic())
+			.subscribeOn(Schedulers.boundedElastic())
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.map(document -> document.select(".jobs_table tbody tr"))
