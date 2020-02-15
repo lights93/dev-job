@@ -3,22 +3,17 @@ package com.mino.devjob.recruit.dto;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
 import com.mino.devjob.recruit.type.NaverEntType;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
+@Value
 @Builder
-@Getter
-@EqualsAndHashCode
-@AllArgsConstructor
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = NaverRecruitDto.NaverRecruitDtoBuilder.class)
 public class NaverRecruitDto {
 	public static final String NAVER_RECRUIT_URL = "https://recruit.navercorp.com/naver/job/detail/developer";
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -29,6 +24,10 @@ public class NaverRecruitDto {
 	private String jobNm; // 제목
 	private String sysCompanyCd; // 계열사
 	private String jobKeyword; // # 백엔드 개발
+
+	@JsonPOJOBuilder(withPrefix = "")
+	public static class NaverRecruitDtoBuilder {
+	}
 
 	public Recruit toRecruit() {
 		return Recruit.builder()

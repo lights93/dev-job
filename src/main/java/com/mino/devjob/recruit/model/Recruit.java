@@ -8,17 +8,15 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Value;
+import lombok.With;
 
+@Value
 @Builder
-@Getter
-@ToString
-@EqualsAndHashCode
 @Document(collection = "recruit")
 public class Recruit {
 	@Id
+	@With // https://stackoverflow.com/questions/54274248/spring-data-2-1-get-unsupportedoperationexception-no-accessor-to-set-property
 	private ObjectId objectId;
 	@Indexed
 	private final long index;

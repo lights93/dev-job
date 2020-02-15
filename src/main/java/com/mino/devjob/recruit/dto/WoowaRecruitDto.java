@@ -3,21 +3,16 @@ package com.mino.devjob.recruit.dto;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
+@Value
 @Builder
-@Getter
-@EqualsAndHashCode
-@AllArgsConstructor
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = WoowaRecruitDto.WoowaRecruitDtoBuilder.class)
 public class WoowaRecruitDto {
 	private long jobIdx;
 	private String jobTitle; // 내용(제목)
@@ -25,6 +20,10 @@ public class WoowaRecruitDto {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
 	private LocalDate eDate; // 기간
 	private String businessName; // 분류
+
+	@JsonPOJOBuilder(withPrefix = "")
+	public static class WoowaRecruitDtoBuilder {
+	}
 
 	public Recruit toRecruit() {
 		return Recruit.builder()
