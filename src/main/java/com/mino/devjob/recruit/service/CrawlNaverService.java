@@ -1,6 +1,7 @@
 package com.mino.devjob.recruit.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import org.jsoup.Connection;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.recruit.dto.NaverRecruitDto;
 import com.mino.devjob.recruit.model.Recruit;
@@ -30,11 +32,11 @@ public class CrawlNaverService implements CrawlService {
 			.subscribeOn(Schedulers.elastic())
 			.filter(Optional::isPresent)
 			.map(Optional::get)
-			.flatMapMany(Flux::fromArray)
+			.flatMapMany(Flux::fromIterable)
 			.map(NaverRecruitDto::toRecruit);
 	}
 
-	private Optional<NaverRecruitDto[]> getNaverRecruits() {
+	private Optional<List<NaverRecruitDto>> getNaverRecruits() {
 		try {
 			String body = Jsoup.connect("https://recruit.navercorp.com/naver/job/listJson")
 				.method(Connection.Method.POST)
@@ -47,7 +49,7 @@ public class CrawlNaverService implements CrawlService {
 				.execute()
 				.body();
 
-			return Optional.ofNullable(mapper.readValue(body, NaverRecruitDto[].class));
+			return Optional.ofNullable(mapper.readValue(body, new TypeReference<>() {}));
 		} catch (IOException e) {
 			log.error("naver parse error ", e);
 			return Optional.empty();

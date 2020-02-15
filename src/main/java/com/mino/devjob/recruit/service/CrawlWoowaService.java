@@ -1,6 +1,7 @@
 package com.mino.devjob.recruit.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import org.jsoup.Connection;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.recruit.dto.WoowaRecruitDto;
 import com.mino.devjob.recruit.model.Recruit;
@@ -30,11 +32,11 @@ public class CrawlWoowaService implements CrawlService {
 			.subscribeOn(Schedulers.elastic())
 			.filter(Optional::isPresent)
 			.map(Optional::get)
-			.flatMapMany(Flux::fromArray)
+			.flatMapMany(Flux::fromIterable)
 			.map(WoowaRecruitDto::toRecruit);
 	}
 
-	private Optional<WoowaRecruitDto[]> getWoowaRecruits() {
+	private Optional<List<WoowaRecruitDto>> getWoowaRecruits() {
 		try {
 			String body = Jsoup.connect("https://www.woowahan.com/jobapi/jobs/list?searchword=&cc=244001")
 				.method(Connection.Method.GET)
@@ -43,7 +45,7 @@ public class CrawlWoowaService implements CrawlService {
 				.execute()
 				.body();
 
-			return Optional.ofNullable(mapper.readValue(body, WoowaRecruitDto[].class));
+			return Optional.ofNullable(mapper.readValue(body, new TypeReference<>() {}));
 		} catch (IOException e) {
 			log.error("woowa parse error ", e);
 			return Optional.empty();
