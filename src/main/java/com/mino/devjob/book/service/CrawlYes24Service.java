@@ -12,7 +12,6 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 
 import com.mino.devjob.book.model.Book;
@@ -56,7 +55,7 @@ public class CrawlYes24Service {
 		}
 	}
 
-	private Publisher<Book> buildYes24Book(Document document) {
+	private Flux<Book> buildYes24Book(Document document) {
 		final Elements goodsNames = document.select(".goods_name a:not(.bgYUI)");
 
 		final Elements intros = document.select(".goods_name .gd_nameE");

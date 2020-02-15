@@ -14,7 +14,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 
 import com.mino.devjob.recruit.model.Recruit;
@@ -65,7 +64,7 @@ public class CrawlKakaoService implements CrawlService {
 		}
 	}
 
-	private Publisher<Recruit> buildKakaoRecruit(Document doc) {
+	private Flux<Recruit> buildKakaoRecruit(Document doc) {
 		final Elements titles = doc.select(".txt_tit");
 		final Elements companyTypes = doc.select(".item_board .field_front");
 		final Elements links = doc.select(".link_notice");
