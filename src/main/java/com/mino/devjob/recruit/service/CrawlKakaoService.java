@@ -1,67 +1,65 @@
 package com.mino.devjob.recruit.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Service("KAKAO")
-@RequiredArgsConstructor
 @Slf4j
 public class CrawlKakaoService implements CrawlService {
-	private static final String KAKAO_RECRUIT_URL = "https://careers.kakao.com";
+	private static final String KAKAO_RECRUIT_URL = "careers.kakao.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
 	@Override
 	public Flux<Recruit> crawl() {
-		return Mono.fromCallable(() -> this.getKakaoDocument(1))
-			.subscribeOn(Schedulers.boundedElastic())
-			.filter(Optional::isPresent)
-			.map(Optional::get)
+		return getPageCount()
+			.flatMapMany(this::crawlKakao);
+	}
+
+	private Mono<Integer> getPageCount() {
+		return getKakaoDocument(1)
 			.map(document -> document.select(".link_job.link_job1").text().trim())
 			.map(NUMBER_PART_PATTERN::matcher)
 			.filter(Matcher::find)
-			.map(matcher -> (Integer.parseInt(matcher.group(0)) + 10 - 1) / 10)
-			.flatMapMany(pages -> Flux.range(1, pages))
-			.flatMap(page -> Mono.fromCallable(() -> this.getKakaoDocument(page))
-				.subscribeOn(Schedulers.boundedElastic()))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
+			.map(matcher -> (Integer.parseInt(matcher.group(0)) + 10 - 1) / 10);
+	}
+
+	private Flux<Recruit> crawlKakao(int pageCount) {
+		return Flux.range(1, pageCount)
+			.flatMap(this::getKakaoDocument)
 			.flatMap(this::buildKakaoRecruit);
 	}
 
-	private Optional<Document> getKakaoDocument(int page) {
-		try {
-			return Optional.ofNullable(Jsoup.connect(KAKAO_RECRUIT_URL + "/jobs")
-				.followRedirects(false)
-				.method(Connection.Method.GET)
-				.data("part", "TECHNOLOGY")
-				.data("page", Integer.toString(page))
-				.execute()
-				.parse());
-		} catch (IOException e) {
-			log.error("kakao parse error, page: {}", page, e);
-			return Optional.empty();
-		}
+	private Mono<Document> getKakaoDocument(int page) {
+		return WebClient.create()
+			.get()
+			.uri(uriBuilder -> uriBuilder
+				.scheme("https")
+				.host(KAKAO_RECRUIT_URL)
+				.path("jobs")
+				.queryParam("part", "TECHNOLOGY")
+				.queryParam("page", Integer.toString(page))
+				.build())
+			.retrieve()
+			.bodyToMono(String.class)
+			.map(Jsoup::parse)
+			.onErrorResume(error -> Mono.empty());
 	}
 
 	private Flux<Recruit> buildKakaoRecruit(Document doc) {
@@ -101,7 +99,7 @@ public class CrawlKakaoService implements CrawlService {
 
 				String tags = String.join(", ", tagTexts.eachText());
 
-				String link = KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
+				String link = "https://" + KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
 
 				int startIdx = link.indexOf("/jobs/P-") + 8;
 				int endIdx = link.indexOf("?part");

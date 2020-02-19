@@ -1,58 +1,52 @@
 package com.mino.devjob.book.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.book.model.Book;
 import com.mino.devjob.book.type.Yes24CategoryType;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class CrawlYes24Service {
-	private static final String YES24_URL = "http://www.yes24.com";
+	private static final String YES24_URL = "yes24.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
 	public Flux<Book> crawl() {
 		return Flux.fromArray(Yes24CategoryType.values())
 			.map(Yes24CategoryType::getCode)
-			.flatMap(code -> Mono.fromCallable(() -> this.getYes24Document(code))
-				.subscribeOn(Schedulers.boundedElastic()))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
+			.flatMap(this::getYes24Document)
 			.flatMap(this::buildYes24Book);
 	}
 
-	private Optional<Document> getYes24Document(String code) {
-		try {
-			return Optional.ofNullable(Jsoup.connect(YES24_URL + "/24/Category/Display/" + code)
-				.followRedirects(false)
-				.method(Connection.Method.GET)
-				.data("ParamSortTp", "04") // 신상품 순 정렬
-				.data("FetchSize", "100")
-				.data("pageNumber", "1")
-				.execute()
-				.parse());
-		} catch (IOException e) {
-			log.error("yes24 parse error, code: {}", code, e);
-			return Optional.empty();
-		}
+	private Mono<Document> getYes24Document(String code) {
+		return WebClient.create()
+			.get()
+			.uri(uriBuilder -> uriBuilder
+				.scheme("http")
+				.host("yes24.com")
+				.pathSegment("24", "Category", "Display", code)
+				.queryParam("ParamSortTp", "04") // 신상품 순 정렬
+				.queryParam("FetchSize", "100")
+				.queryParam("pageNumber", "1")
+				.build())
+			.retrieve()
+			.bodyToMono(String.class)
+			.map(Jsoup::parse)
+			.onErrorResume(error -> Mono.empty());
+
 	}
 
 	private Flux<Book> buildYes24Book(Document document) {
@@ -71,7 +65,7 @@ public class CrawlYes24Service {
 			.map(i -> {
 				String name = goodsNames.get(i).text().trim();
 
-				String link = YES24_URL + goodsNames.get(i).attr("href").trim();
+				String link = "http://" + YES24_URL + goodsNames.get(i).attr("href").trim();
 
 				int startIdx = link.lastIndexOf("/") + 1;
 				long id = Long.parseLong(link.substring(startIdx));

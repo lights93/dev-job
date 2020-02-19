@@ -1,32 +1,27 @@
 package com.mino.devjob.recruit.service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Service("LINE")
-@RequiredArgsConstructor
 @Slf4j
 public class CrawlLineService implements CrawlService {
-	private static final String LINE_RECRUIT_URL = "https://recruit.linepluscorp.com";
+	private static final String LINE_RECRUIT_URL = "recruit.linepluscorp.com";
 	private static final Pattern SQUARE_BRACKETS_PATTERN = Pattern.compile("\\[(.*?)\\]");
 	private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d.*");
 
@@ -34,32 +29,31 @@ public class CrawlLineService implements CrawlService {
 
 	@Override
 	public Flux<Recruit> crawl() {
-		return Mono.fromCallable(this::getLineDocument)
-			.subscribeOn(Schedulers.boundedElastic())
-			.filter(Optional::isPresent)
-			.map(Optional::get)
+		return getLineDocument()
 			.map(document -> document.select(".jobs_table tbody tr"))
 			.flatMapMany(Flux::fromIterable)
 			.map(row -> row.select("td"))
 			.map(this::buildLineRecruit);
 	}
 
-	private Optional<Document> getLineDocument() {
-		try {
-			return Optional.ofNullable(Jsoup.connect(LINE_RECRUIT_URL + "/lineplus/career/list")
-				.method(Connection.Method.GET)
-				.data("classId", "148")
-				.execute()
-				.parse());
-		} catch (IOException e) {
-			log.error("line parse error ", e);
-			return Optional.empty();
-		}
+	private Mono<Document> getLineDocument() {
+		return WebClient.create()
+			.get()
+			.uri(uriBuilder -> uriBuilder
+				.scheme("https")
+				.host(LINE_RECRUIT_URL)
+				.pathSegment("lineplus", "career", "list")
+				.queryParam("classId", "148")
+				.build())
+			.retrieve()
+			.bodyToMono(String.class)
+			.map(Jsoup::parse)
+			.onErrorResume(error -> Mono.empty());
 	}
 
 	private Recruit buildLineRecruit(Elements tds) {
 		Element titleEl = tds.get(1);
-		String link = LINE_RECRUIT_URL + titleEl.select("a").attr("href").trim();
+		String link = "https://" + LINE_RECRUIT_URL + titleEl.select("a").attr("href").trim();
 
 		int startIdx = link.indexOf("/detail/") + 8;
 		int endIdx = link.indexOf("?classId");
