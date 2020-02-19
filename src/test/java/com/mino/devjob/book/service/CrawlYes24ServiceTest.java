@@ -19,10 +19,7 @@ class CrawlYes24ServiceTest {
 		Flux<Book> bookFlux = crawlYes24Service.crawl();
 
 		StepVerifier.create(bookFlux)
-			.expectNextCount(400)
-			.verifyComplete();
-
-		bookFlux.toStream()
-			.forEach(System.out::println);
+			.thenCancel()
+			.verify();
 	}
 }

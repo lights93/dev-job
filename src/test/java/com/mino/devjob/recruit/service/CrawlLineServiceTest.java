@@ -11,7 +11,6 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 class CrawlLineServiceTest {
-
 	@InjectMocks
 	private CrawlLineService crawlLineService;
 
