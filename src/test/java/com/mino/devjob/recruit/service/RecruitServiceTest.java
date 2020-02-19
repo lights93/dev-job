@@ -98,10 +98,14 @@ class RecruitServiceTest {
 
 	@Test
 	void deleteAll() {
-		Mockito.when(recruitRepository.deleteAll())
+		Recruit recruit = Recruit.builder().title("title").build();
+
+		List<Recruit> recruits = List.of(recruit);
+
+		Mockito.when(recruitRepository.deleteAll(recruits))
 			.thenReturn(Mono.empty());
 
-		StepVerifier.create(recruitService.deleteAll())
+		StepVerifier.create(recruitService.deleteAll(recruits))
 			.verifyComplete();
 	}
 

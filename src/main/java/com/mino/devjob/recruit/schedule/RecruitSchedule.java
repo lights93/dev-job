@@ -1,17 +1,17 @@
 package com.mino.devjob.recruit.schedule;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.service.CrawlService;
 import com.mino.devjob.recruit.service.RecruitService;
 import com.mino.devjob.recruit.type.CompanyType;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 @RequiredArgsConstructor
@@ -21,18 +21,17 @@ public class RecruitSchedule {
 
 	@Scheduled(fixedDelay = 60 * 60 * 1000) // 1 hour
 	public void refreshRecruit() {
-		// TODO 지저분 ㅠㅠ
-		List<Recruit> recruits = recruitService.getRecruits(true).collectList().blockOptional().orElseThrow();
-
-		recruitService.deleteAll().block();
-
-		Flux.fromIterable(crawlServiceMap.values())
+		recruitService.getRecruits(false)
+			.collectList()
+			.flatMap(recruitService::deleteAll)
+			.then(Mono.just(crawlServiceMap.values()))
+			.flatMapMany(Flux::fromIterable)
 			.flatMap(CrawlService::crawl)
+			.filterWhen(recruitService::notExistsByIndexAndCompanyAndFavorite)
 			.collectList()
 			.flatMapMany(recruitService::saveAll)
 			.collectList()
-			.block();
-
-		recruits.forEach(recruit -> recruitService.update(recruit).block());
+			.subscribeOn(Schedulers.boundedElastic())
+			.subscribe();
 	}
 }

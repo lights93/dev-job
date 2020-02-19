@@ -52,11 +52,16 @@ public class RecruitService {
 		return recruitRepository.findAllByFavorite(favorite);
 	}
 
-	public Mono<Void> deleteAll() {
-		return recruitRepository.deleteAll();
+	public Mono<Void> deleteAll(List<Recruit> recruits) {
+		return recruitRepository.deleteAll(recruits);
 	}
 
 	public Flux<Recruit> saveAll(List<Recruit> recruits) {
 		return recruitRepository.saveAll(recruits);
+	}
+
+	public Mono<Boolean> notExistsByIndexAndCompanyAndFavorite(Recruit recruit) {
+		return recruitRepository.existsByIndexAndCompanyAndFavorite(recruit.getIndex(), recruit.getCompany(), true)
+			.map(b -> !b);
 	}
 }
