@@ -7,6 +7,7 @@ import com.mino.devjob.book.model.Book;
 import com.mino.devjob.book.service.BookService;
 import com.mino.devjob.book.service.CrawlYes24Service;
 import lombok.RequiredArgsConstructor;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +22,8 @@ public class BookSchedule {
 			.collectList()
 			.flatMapMany(bookService::saveAll)
 			.collectList()
-			.block();
+			.subscribeOn(Schedulers.boundedElastic())
+			.subscribe();
 	}
 
 }
