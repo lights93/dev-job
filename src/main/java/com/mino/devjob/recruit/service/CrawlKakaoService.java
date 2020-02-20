@@ -23,8 +23,10 @@ import reactor.core.publisher.Mono;
 @Service("KAKAO")
 @Slf4j
 public class CrawlKakaoService implements CrawlService {
-	private static final String KAKAO_RECRUIT_URL = "careers.kakao.com";
+	private static final String KAKAO_RECRUIT_URL = "https://careers.kakao.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
+
+	private final WebClient webClient = WebClient.create(KAKAO_RECRUIT_URL);
 
 	@Override
 	public Flux<Recruit> crawl() {
@@ -47,11 +49,9 @@ public class CrawlKakaoService implements CrawlService {
 	}
 
 	private Mono<Document> getKakaoDocument(int page) {
-		return WebClient.create()
+		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
-				.host(KAKAO_RECRUIT_URL)
 				.path("jobs")
 				.queryParam("part", "TECHNOLOGY")
 				.queryParam("page", Integer.toString(page))
@@ -99,7 +99,7 @@ public class CrawlKakaoService implements CrawlService {
 
 				String tags = String.join(", ", tagTexts.eachText());
 
-				String link = "https://" + KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
+				String link = KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
 
 				int startIdx = link.indexOf("/jobs/P-") + 8;
 				int endIdx = link.indexOf("?part");

@@ -21,8 +21,11 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class CrawlYes24Service {
-	private static final String YES24_URL = "yes24.com";
+	private static final String YES24_URL = "http://yes24.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
+
+	private final WebClient webClient = WebClient.create(YES24_URL);
+
 
 	public Flux<Book> crawl() {
 		return Flux.fromArray(Yes24CategoryType.values())
@@ -32,11 +35,9 @@ public class CrawlYes24Service {
 	}
 
 	private Mono<Document> getYes24Document(String code) {
-		return WebClient.create()
+		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("http")
-				.host("yes24.com")
 				.pathSegment("24", "Category", "Display", code)
 				.queryParam("ParamSortTp", "04") // 신상품 순 정렬
 				.queryParam("FetchSize", "100")
@@ -65,7 +66,7 @@ public class CrawlYes24Service {
 			.map(i -> {
 				String name = goodsNames.get(i).text().trim();
 
-				String link = "http://" + YES24_URL + goodsNames.get(i).attr("href").trim();
+				String link = YES24_URL + goodsNames.get(i).attr("href").trim();
 
 				int startIdx = link.lastIndexOf("/") + 1;
 				long id = Long.parseLong(link.substring(startIdx));

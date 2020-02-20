@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 @Service("NAVER")
 @Slf4j
 public class CrawlNaverService implements CrawlService {
+	private final WebClient webClient = WebClient.create("https://recruit.navercorp.com");
+
 	@Override
 	public Flux<Recruit> crawl() {
 		return getNaverRecruits()
@@ -21,11 +23,9 @@ public class CrawlNaverService implements CrawlService {
 	}
 
 	private Flux<NaverRecruitDto> getNaverRecruits() {
-		return WebClient.create()
+		return webClient
 			.post()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
-				.host("recruit.navercorp.com")
 				.pathSegment("naver", "job", "listJson")
 				.queryParam("classNm", "developer")
 				.queryParam("startNum", "1")

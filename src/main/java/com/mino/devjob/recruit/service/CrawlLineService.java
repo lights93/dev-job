@@ -21,11 +21,13 @@ import reactor.core.publisher.Mono;
 @Service("LINE")
 @Slf4j
 public class CrawlLineService implements CrawlService {
-	private static final String LINE_RECRUIT_URL = "recruit.linepluscorp.com";
+	private static final String LINE_RECRUIT_URL = "https://recruit.linepluscorp.com";
 	private static final Pattern SQUARE_BRACKETS_PATTERN = Pattern.compile("\\[(.*?)\\]");
 	private static final Pattern NUMBER_PATTERN = Pattern.compile(".*\\d.*");
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+	private final WebClient webClient = WebClient.create(LINE_RECRUIT_URL);
 
 	@Override
 	public Flux<Recruit> crawl() {
@@ -37,11 +39,9 @@ public class CrawlLineService implements CrawlService {
 	}
 
 	private Mono<Document> getLineDocument() {
-		return WebClient.create()
+		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
-				.host(LINE_RECRUIT_URL)
 				.pathSegment("lineplus", "career", "list")
 				.queryParam("classId", "148")
 				.build())
@@ -53,7 +53,7 @@ public class CrawlLineService implements CrawlService {
 
 	private Recruit buildLineRecruit(Elements tds) {
 		Element titleEl = tds.get(1);
-		String link = "https://" + LINE_RECRUIT_URL + titleEl.select("a").attr("href").trim();
+		String link = LINE_RECRUIT_URL + titleEl.select("a").attr("href").trim();
 
 		int startIdx = link.indexOf("/detail/") + 8;
 		int endIdx = link.indexOf("?classId");

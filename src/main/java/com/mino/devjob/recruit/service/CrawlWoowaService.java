@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 @Service("WOOWA")
 @Slf4j
 public class CrawlWoowaService implements CrawlService {
+	private final WebClient webClient = WebClient.create("https://woowahan.com");
+
 	@Override
 	public Flux<Recruit> crawl() {
 		return getWoowaRecruits()
@@ -21,11 +23,9 @@ public class CrawlWoowaService implements CrawlService {
 	}
 
 	private Flux<WoowaRecruitDto> getWoowaRecruits() {
-		return WebClient.create()
+		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
-				.host("woowahan.com")
 				.pathSegment("jobapi", "jobs", "list")
 				.queryParam("searchword", "")
 				.queryParam("cc", "244001")
