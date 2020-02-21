@@ -9,7 +9,6 @@ import com.mino.devjob.recruit.dto.WoowaRecruitDto;
 import com.mino.devjob.recruit.model.Recruit;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service("WOOWA")
 @Slf4j
@@ -33,6 +32,9 @@ public class CrawlWoowaService implements CrawlService {
 			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 			.retrieve()
 			.bodyToFlux(WoowaRecruitDto.class)
-			.onErrorResume(error -> Mono.empty());
+			.onErrorResume(error -> {
+				log.error("get woowa error!!", error);
+				return Flux.empty();
+			});
 	}
 }

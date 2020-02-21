@@ -26,7 +26,6 @@ public class CrawlYes24Service {
 
 	private final WebClient webClient = WebClient.create(YES24_URL);
 
-
 	public Flux<Book> crawl() {
 		return Flux.fromArray(Yes24CategoryType.values())
 			.map(Yes24CategoryType::getCode)
@@ -46,8 +45,7 @@ public class CrawlYes24Service {
 			.retrieve()
 			.bodyToMono(String.class)
 			.map(Jsoup::parse)
-			.onErrorResume(error -> Mono.empty());
-
+			.onErrorContinue((error, element) -> log.error("get yes24 error!! code: {}", code, error));
 	}
 
 	private Flux<Book> buildYes24Book(Document document) {

@@ -48,7 +48,10 @@ public class CrawlLineService implements CrawlService {
 			.retrieve()
 			.bodyToMono(String.class)
 			.map(Jsoup::parse)
-			.onErrorResume(error -> Mono.empty());
+			.onErrorResume(error -> {
+				log.error("get line error!!", error);
+				return Mono.empty();
+			});
 	}
 
 	private Recruit buildLineRecruit(Elements tds) {

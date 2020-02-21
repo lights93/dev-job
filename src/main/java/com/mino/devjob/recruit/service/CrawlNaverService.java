@@ -9,7 +9,6 @@ import com.mino.devjob.recruit.dto.NaverRecruitDto;
 import com.mino.devjob.recruit.model.Recruit;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service("NAVER")
 @Slf4j
@@ -34,6 +33,9 @@ public class CrawlNaverService implements CrawlService {
 			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 			.retrieve()
 			.bodyToFlux(NaverRecruitDto.class)
-			.onErrorResume(error -> Mono.empty());
+			.onErrorResume(error -> {
+				log.error("get Naver error!!", error);
+				return Flux.empty();
+			});
 	}
 }
