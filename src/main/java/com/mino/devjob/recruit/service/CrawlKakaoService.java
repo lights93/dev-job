@@ -59,7 +59,7 @@ public class CrawlKakaoService implements CrawlService {
 			.retrieve()
 			.bodyToMono(String.class)
 			.map(Jsoup::parse)
-			.onErrorResume(error -> Mono.empty());
+			.onErrorContinue((error, element) -> log.error("get kakao error!! page: {}", page, error));
 	}
 
 	private Flux<Recruit> buildKakaoRecruit(Document doc) {
