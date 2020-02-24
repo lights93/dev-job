@@ -36,6 +36,7 @@ public class CrawlKakaoService implements CrawlService {
 
 	private Mono<Integer> getPageCount() {
 		return getKakaoDocument(1)
+			.onErrorContinue((error, element) -> log.error("get kakao error!! page: 1", error))
 			.map(document -> document.select(".link_job.link_job1").text().trim())
 			.map(NUMBER_PART_PATTERN::matcher)
 			.filter(Matcher::find)
@@ -45,6 +46,7 @@ public class CrawlKakaoService implements CrawlService {
 	private Flux<Recruit> crawlKakao(int pageCount) {
 		return Flux.range(1, pageCount)
 			.flatMap(this::getKakaoDocument)
+			.onErrorContinue((error, element) -> log.error("get kakao error!!", error))
 			.flatMap(this::buildKakaoRecruit);
 	}
 
@@ -58,8 +60,7 @@ public class CrawlKakaoService implements CrawlService {
 				.build())
 			.retrieve()
 			.bodyToMono(String.class)
-			.map(Jsoup::parse)
-			.onErrorContinue((error, element) -> log.error("get kakao error!! page: {}", page, error));
+			.map(Jsoup::parse);
 	}
 
 	private Flux<Recruit> buildKakaoRecruit(Document doc) {
