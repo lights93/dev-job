@@ -30,6 +30,7 @@ public class CrawlYes24Service {
 		return Flux.fromArray(Yes24CategoryType.values())
 			.map(Yes24CategoryType::getCode)
 			.flatMap(this::getYes24Document)
+			.onErrorContinue((error, element) -> log.error("get yes24 error!!", error))
 			.flatMap(this::buildYes24Book);
 	}
 
@@ -44,8 +45,7 @@ public class CrawlYes24Service {
 				.build())
 			.retrieve()
 			.bodyToMono(String.class)
-			.map(Jsoup::parse)
-			.onErrorContinue((error, element) -> log.error("get yes24 error!! code: {}", code, error));
+			.map(Jsoup::parse);
 	}
 
 	private Flux<Book> buildYes24Book(Document document) {
