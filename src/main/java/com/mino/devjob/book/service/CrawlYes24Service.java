@@ -10,6 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.book.model.Book;
@@ -21,10 +22,14 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class CrawlYes24Service {
-	private static final String YES24_URL = "http://yes24.com";
+	private static final String YES24_URL = "http://www.yes24.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
-	private final WebClient webClient = WebClient.create(YES24_URL);
+	private final WebClient webClient = WebClient.builder()
+		.baseUrl(YES24_URL)
+		.exchangeStrategies(ExchangeStrategies.builder()
+			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024)).build())
+		.build();
 
 	public Flux<Book> crawl() {
 		return Flux.fromArray(Yes24CategoryType.values())
@@ -40,7 +45,7 @@ public class CrawlYes24Service {
 			.uri(uriBuilder -> uriBuilder
 				.pathSegment("24", "Category", "Display", code)
 				.queryParam("ParamSortTp", "04") // 신상품 순 정렬
-				.queryParam("FetchSize", "100")
+				.queryParam("FetchSize", "50")
 				.queryParam("pageNumber", "1")
 				.build())
 			.retrieve()
@@ -96,3 +101,4 @@ public class CrawlYes24Service {
 			});
 	}
 }
+
