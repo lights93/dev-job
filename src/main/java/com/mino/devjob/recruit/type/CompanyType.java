@@ -6,4 +6,5 @@ public enum CompanyType {
 	KAKAO,
 	LINE,
 	WOOWA,
+	COUPANG
 }
