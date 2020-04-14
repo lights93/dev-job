@@ -33,7 +33,7 @@ public class MongoConfig {
 		var mappingContext = this.mongoConverter.getMappingContext();
 
 		if (mappingContext instanceof MongoMappingContext) {
-			MongoMappingContext mongoMappingContext = (MongoMappingContext) mappingContext;
+			MongoMappingContext mongoMappingContext = (MongoMappingContext)mappingContext;
 			for (BasicMongoPersistentEntity<?> persistentEntity : mongoMappingContext.getPersistentEntities()) {
 				var clazz = persistentEntity.getType();
 				if (clazz.isAnnotationPresent(Document.class)) {

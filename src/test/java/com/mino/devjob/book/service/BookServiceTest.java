@@ -1,7 +1,5 @@
 package com.mino.devjob.book.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.List;
 
 import org.junit.jupiter.api.Test;

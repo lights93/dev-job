@@ -39,8 +39,8 @@ public class CrawlCoupangService implements CrawlService {
 		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
-			.path("%EA%B2%80%EC%83%89-%EC%A7%81%EB%AC%B4/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD")
-			.queryParam("orgIds", "24450")
+				.path("%EA%B2%80%EC%83%89-%EC%A7%81%EB%AC%B4/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD")
+				.queryParam("orgIds", "24450")
 				.queryParam("alp", "1835841")
 				.queryParam("alt", "2")
 				.queryParam("ac", "62822")
@@ -63,7 +63,6 @@ public class CrawlCoupangService implements CrawlService {
 		final Elements links = doc.select(".searched-job-item a");
 
 		LocalDate end = LocalDate.of(2999, 12, 31);
-
 
 		int cnt = titles.size();
 

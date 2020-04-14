@@ -25,7 +25,7 @@ public class CrawlDaangnService implements CrawlService {
 	private static final Pattern BRACKETS_PATTERN = Pattern.compile("\\((.*?)\\)");
 	private static final DaangnRequestDto DAANGN_REQUEST_DTO =
 		DaangnRequestDto.builder()
-		.pageId("07ca1fda-2258-4d60-a48e-f43a8cf9bab0")
+			.pageId("07ca1fda-2258-4d60-a48e-f43a8cf9bab0")
 			.limit(50)
 			.chunkNumber(0)
 			.verticalColumns(false)
@@ -37,18 +37,6 @@ public class CrawlDaangnService implements CrawlService {
 	public Flux<Recruit> crawl() {
 		return getDaangnDocument()
 			.map(this::buildDaangnRecruit);
-//			.map(value -> {
-//
-//				String title = ((Map<String, List<String>>)value.get("properties")).get("title").get(0);
-
-//				return Recruit.builder()
-//					.index((long)value.get("created_time"))
-//					.company(CompanyType.DAANGN.name())
-//					.title()
-//					.build();
-//				throw new RuntimeException();
-//				return Recruit.builder().build();
-//			});
 	}
 
 	private Flux<Map<String, Object>> getDaangnDocument() {
@@ -71,7 +59,8 @@ public class CrawlDaangnService implements CrawlService {
 	}
 
 	private Recruit buildDaangnRecruit(Map<String, Object> valueMap) {
-		String titleText = (String)((Map<String, List<List<Object>>>)valueMap.get("properties")).get("title").get(0).get(0);
+		String titleText = (String)((Map<String, List<List<Object>>>)valueMap.get("properties"))
+			.get("title").get(0).get(0);
 
 		Matcher matcher = BRACKETS_PATTERN.matcher(titleText);
 
@@ -87,13 +76,13 @@ public class CrawlDaangnService implements CrawlService {
 		if (matchList.size() > 1) { // 태그가 있는 경우
 			tags = matchList.get(0);
 			jobType = matchList.get(1);
-		} else if(matchList.size() == 1){
+		} else if (matchList.size() == 1) {
 			jobType = matchList.get(0);
 		}
 
 		String title = titleText.trim();
 
-		if(titleText.contains("(")) {
+		if (titleText.contains("(")) {
 			title = titleText.substring(0, titleText.indexOf("(")).trim();
 		}
 

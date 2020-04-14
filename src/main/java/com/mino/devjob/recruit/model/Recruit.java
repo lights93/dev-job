@@ -16,7 +16,8 @@ import lombok.With;
 @Document(collection = "recruit")
 public class Recruit {
 	@Id
-	@With // https://stackoverflow.com/questions/54274248/spring-data-2-1-get-unsupportedoperationexception-no-accessor-to-set-property
+	@With
+	// https://stackoverflow.com/questions/54274248/spring-data-2-1-get-unsupportedoperationexception-no-accessor-to-set-property
 	private ObjectId objectId;
 	@Indexed
 	private final long index;

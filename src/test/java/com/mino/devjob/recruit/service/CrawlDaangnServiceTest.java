@@ -16,9 +16,9 @@ class CrawlDaangnServiceTest {
 
 	@Test
 	void crawl() {
-		Flux<Recruit> lineRecruits = crawlDaangnService.crawl();
+		Flux<Recruit> crawl = crawlDaangnService.crawl();
 
-		StepVerifier.create(lineRecruits)
+		StepVerifier.create(crawl)
 			.thenCancel()
 			.verify();
 	}
