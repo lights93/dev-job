@@ -38,7 +38,7 @@ class RecruitScheduleTest {
 		Flux<Recruit> recruitFlux = Flux.just(recruit);
 		//		Flux<Recruit> recruitFlux2 = Flux.just(recruit2);
 
-		Mockito.when(recruitService.getRecruits(Mockito.anyBoolean()))
+		Mockito.when(recruitService.getRecruitsByFavorite(Mockito.anyInt()))
 			.thenReturn(recruitFlux);
 		//
 		//		Mockito.when(recruitService.deleteAll(Mockito.anyList()))

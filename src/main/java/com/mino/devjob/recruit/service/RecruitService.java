@@ -40,7 +40,7 @@ public class RecruitService {
 				.jobType(r.getJobType())
 				.link(r.getLink())
 				.tags(r.getTags())
-				.favorite(recruit.isFavorite())
+				.favorite(recruit.getFavorite())
 				.term(r.getTerm())
 				.objectId(r.getObjectId())
 				.build()
@@ -48,7 +48,7 @@ public class RecruitService {
 			.flatMap(recruitRepository::save);
 	}
 
-	public Flux<Recruit> getRecruits(boolean favorite) {
+	public Flux<Recruit> getRecruitsByFavorite(int favorite) {
 		return recruitRepository.findAllByFavorite(favorite);
 	}
 
@@ -60,8 +60,8 @@ public class RecruitService {
 		return recruitRepository.saveAll(recruits);
 	}
 
-	public Mono<Boolean> notExistsByIndexAndCompanyAndFavorite(Recruit recruit) {
-		return recruitRepository.existsByIndexAndCompanyAndFavorite(recruit.getIndex(), recruit.getCompany(), true)
+	public Mono<Boolean> notExistsByIndexAndCompanyAndFavoriteIsNot(Recruit recruit, int favorite) {
+		return recruitRepository.existsByIndexAndCompanyAndFavoriteIsNot(recruit.getIndex(), recruit.getCompany(), favorite)
 			.map(b -> !b);
 	}
 }

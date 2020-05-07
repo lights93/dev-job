@@ -92,7 +92,7 @@ public class CrawlDaangnService implements CrawlService {
 			.index((long)valueMap.get("created_time"))
 			.company(CompanyType.DAANGN.name())
 			.title(title)
-			.link(DAANGN_RECRUIT_URL)
+			.link(DAANGN_RECRUIT_URL + "/07ca1fda22584d60a48ef43a8cf9bab0")
 			.jobType(jobType)
 			.term(end)
 			.companyType(CompanyType.DAANGN.name())

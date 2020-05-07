@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.mino.devjob.book.model.Book;
 import com.mino.devjob.book.repository.BookRepository;
+import com.mino.devjob.recruit.model.Recruit;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,5 +30,13 @@ public class BookService {
 
 	public Mono<Book> update(Book book) {
 		return bookRepository.save(book);
+	}
+
+//	public Flux<Book> getBooks(int favorite) {
+//		return bookRepository.findAllByFavoriteIsLessThan(favorite);
+//	}
+
+	public Mono<Boolean> notExistsByIndexAndCompanyAndFavoriteIsNot(Book book, int favorite) {
+		return bookRepository.existsByIdAndFavoriteIsNot(book.getId(), favorite).map(b -> !b);
 	}
 }

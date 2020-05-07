@@ -7,6 +7,7 @@ import com.mino.devjob.book.model.Book;
 import com.mino.devjob.book.service.BookService;
 import com.mino.devjob.book.service.CrawlYes24Service;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 @Component
@@ -19,6 +20,7 @@ public class BookSchedule {
 	public void saveBooks() {
 		crawlYes24Service.crawl()
 			.distinct(Book::getId)
+			.filterWhen(b -> bookService.notExistsByIndexAndCompanyAndFavoriteIsNot(b, 0))
 			.collectList()
 			.flatMapMany(bookService::saveAll)
 			.collectList()

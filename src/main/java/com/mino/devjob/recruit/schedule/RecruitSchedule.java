@@ -21,13 +21,13 @@ public class RecruitSchedule {
 
 	@Scheduled(fixedDelay = 60 * 60 * 1000) // 1 hour
 	public void refreshRecruit() {
-		recruitService.getRecruits(false)
+		recruitService.getRecruitsByFavorite(0)
 			.collectList()
 			.flatMap(recruitService::deleteAll)
 			.then(Mono.just(crawlServiceMap.values()))
 			.flatMapMany(Flux::fromIterable)
 			.flatMap(CrawlService::crawl)
-			.filterWhen(recruitService::notExistsByIndexAndCompanyAndFavorite)
+			.filterWhen(r -> recruitService.notExistsByIndexAndCompanyAndFavoriteIsNot(r, 0))
 			.collectList()
 			.flatMapMany(recruitService::saveAll)
 			.collectList()

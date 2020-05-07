@@ -10,11 +10,11 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface RecruitRepository extends ReactiveMongoRepository<Recruit, ObjectId> {
-	Mono<Boolean> existsByIndexAndCompanyAndFavorite(Long index, String company, boolean favorite);
+	Mono<Boolean> existsByIndexAndCompanyAndFavoriteIsNot(Long index, String company, int favorite);
 
 	Flux<Recruit> findAllByCompany(String company);
 
 	Mono<Recruit> findByIndexAndCompany(Long index, String company);
 
-	Flux<Recruit> findAllByFavorite(boolean favorite);
+	Flux<Recruit> findAllByFavorite(int favorite);
 }

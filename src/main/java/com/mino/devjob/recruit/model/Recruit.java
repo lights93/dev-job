@@ -29,5 +29,5 @@ public class Recruit {
 	private final LocalDate term; // 영입종료조건
 	private final String companyType; // 계열사
 	private final String tags; // 태그
-	private final boolean favorite; // 관심
+	private final int favorite; // 관심
 }

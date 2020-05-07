@@ -25,5 +25,5 @@ public class Book {
 	private final LocalDate publishDate; // 출판일
 	private final String publisher; // 출판사
 	private final int price; // 가격
-	private final boolean favorite; // 관심
+	private final int favorite; // 관심
 }

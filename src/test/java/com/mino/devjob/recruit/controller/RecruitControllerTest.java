@@ -61,8 +61,8 @@ class RecruitControllerTest {
 
 	@Test
 	void putRecruit() {
-		Recruit recruit = Recruit.builder().favorite(false).build();
-		Recruit recruit2 = Recruit.builder().favorite(true).build();
+		Recruit recruit = Recruit.builder().favorite(0).build();
+		Recruit recruit2 = Recruit.builder().favorite(1).build();
 
 		Mockito.when(recruitService.update(Mockito.eq(recruit)))
 			.thenReturn(Mono.just(recruit2));

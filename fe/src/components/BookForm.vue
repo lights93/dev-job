@@ -36,8 +36,9 @@
             <b-form-group label-cols="4" label-cols-lg="2" label="관심여부" label-for="radio-favorite" label-size="sm">
                 <b-form-radio-group id="radio-favorite" v-model="form.favorite" name="radio-sub-component">
                     <b-form-radio value="ALL">전체</b-form-radio>
-                    <b-form-radio value="true">관심</b-form-radio>
-                    <b-form-radio value="false">관심없음</b-form-radio>
+                    <b-form-radio value="1">관심</b-form-radio>
+                    <b-form-radio value="0">본적없음</b-form-radio>
+                    <b-form-radio value="-1">관심없음</b-form-radio>
                 </b-form-radio-group>
             </b-form-group>
 

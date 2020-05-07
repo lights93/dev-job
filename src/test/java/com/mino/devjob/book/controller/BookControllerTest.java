@@ -59,8 +59,8 @@ class BookControllerTest {
 
 	@Test
 	void putBook() {
-		Book book = Book.builder().favorite(false).build();
-		Book book2 = Book.builder().favorite(true).build();
+		Book book = Book.builder().favorite(1).build();
+		Book book2 = Book.builder().favorite(-1).build();
 
 		Mockito.when(bookService.update(Mockito.eq(book)))
 			.thenReturn(Mono.just(book2));

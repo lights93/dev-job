@@ -88,10 +88,10 @@ class RecruitServiceTest {
 
 		Flux<Recruit> recruitFlux = Flux.just(recruit);
 
-		Mockito.when(recruitRepository.findAllByFavorite(Mockito.anyBoolean()))
+		Mockito.when(recruitRepository.findAllByFavorite(Mockito.anyInt()))
 			.thenReturn(recruitFlux);
 
-		StepVerifier.create(recruitService.getRecruits(true))
+		StepVerifier.create(recruitService.getRecruitsByFavorite(1))
 			.expectNext(recruit)
 			.verifyComplete();
 	}
