@@ -3,7 +3,6 @@ package com.mino.devjob.recruit.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,10 +36,8 @@ public class CrawlKakaoService implements CrawlService {
 	private Mono<Integer> getPageCount() {
 		return getKakaoDocument(1)
 			.onErrorContinue((error, element) -> log.error("get kakao error!! page: 1", error))
-			.map(document -> document.select(".link_job.link_job1").text().trim())
-			.map(NUMBER_PART_PATTERN::matcher)
-			.filter(Matcher::find)
-			.map(matcher -> (Integer.parseInt(matcher.group(0)) + 10 - 1) / 10);
+			.map(document -> document.select(".link_job.link_job1 .emph_num").text().trim())
+			.map(pages -> (Integer.parseInt(pages) + 10 - 1) / 10);
 	}
 
 	private Flux<Recruit> crawlKakao(int pageCount) {
@@ -57,6 +54,7 @@ public class CrawlKakaoService implements CrawlService {
 				.path("jobs")
 				.queryParam("part", "TECHNOLOGY")
 				.queryParam("page", Integer.toString(page))
+				.queryParam("company", "ALL")
 				.build())
 			.retrieve()
 			.bodyToMono(String.class)
@@ -64,25 +62,18 @@ public class CrawlKakaoService implements CrawlService {
 	}
 
 	private Flux<Recruit> buildKakaoRecruit(Document doc) {
-		final Elements titles = doc.select(".txt_tit");
-		final Elements companyTypes = doc.select(".item_board .field_front");
-		final Elements links = doc.select(".link_notice");
+		final Elements titles = doc.select(".tit_jobs");
+		final Elements links = doc.select(".link_jobs");
 
-		final Elements details = doc.select(".txt_period");
-		final Elements tagElements = doc.select(".list_tag.wrap_tag");
+		final Elements termInfos = doc.select(".list_info");
+		final Elements details = doc.select(".area_info");
 
 		int cnt = titles.size();
 
 		return Flux.range(0, cnt)
 			.map(i -> {
-				Element detail = details.get(i);
-				Elements detailTexts = detail.select("span span:not(.txt_bar)");
-				String jobType = "";
-				String term = "";
-				if (detailTexts.size() > 0) {
-					jobType = detailTexts.get(1).text().trim();
-					term = detailTexts.get(2).text().trim();
-				}
+				Element termInfo = termInfos.get(i);
+				String term = termInfo.selectFirst(".screen_out").text().trim();
 
 				List<String> matchList = NUMBER_PART_PATTERN.matcher(term).results()
 					.map(MatchResult::group)
@@ -95,15 +86,18 @@ public class CrawlKakaoService implements CrawlService {
 						Integer.parseInt(matchList.get(2)));
 				}
 
-				Element tagEl = tagElements.get(i);
-				Elements tagTexts = tagEl.select("a");
+				Element detail = details.get(i);
+				String companyType = detail.select(".item_subinfo dd").get(0).text().trim();
+				String jobType = detail.select(".item_subinfo dd").get(1).text().trim();
+
+				Elements tagTexts = detail.select(".list_tag.wrap_tag a");
 
 				String tags = String.join(", ", tagTexts.eachText());
 
 				String link = KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
 
-				int startIdx = link.indexOf("/jobs/P-") + 8;
-				int endIdx = link.indexOf("?part");
+				int startIdx = link.indexOf("-") + 1;
+				int endIdx = link.indexOf("?");
 
 				int index = Integer.parseInt(link.substring(startIdx, endIdx));
 
@@ -111,7 +105,7 @@ public class CrawlKakaoService implements CrawlService {
 					.index(index)
 					.company(CompanyType.KAKAO.name())
 					.title(titles.get(i).text())
-					.companyType(companyTypes.get(i).text())
+					.companyType(companyType)
 					.link(link)
 					.jobType(jobType)
 					.term(end)
