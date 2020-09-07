@@ -15,7 +15,9 @@ class CrawlNaverServiceTest {
 	private CrawlNaverService crawlNaver;
 
 	@Test
-	void crawl() {
+	void crawl() throws Exception {
+		crawlNaver.createWebClient();
+
 		Flux<Recruit> naverRecruitList = crawlNaver.crawl();
 
 		StepVerifier.create(naverRecruitList)

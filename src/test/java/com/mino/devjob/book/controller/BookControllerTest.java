@@ -1,11 +1,14 @@
 package com.mino.devjob.book.controller;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -17,6 +20,7 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(BookController.class)
+@WithMockUser
 class BookControllerTest {
 	@MockBean
 	private BookService bookService;
@@ -65,7 +69,7 @@ class BookControllerTest {
 		Mockito.when(bookService.update(Mockito.eq(book)))
 			.thenReturn(Mono.just(book2));
 
-		webTestClient.put()
+		webTestClient.mutateWith(csrf()).put()
 			.uri("/api/books/")
 			.body(Mono.just(book), Book.class)
 			.exchange()

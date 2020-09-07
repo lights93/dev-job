@@ -32,3 +32,8 @@ build/
 
 ## DB
 /mongo/db
+
+
+## secure
+application-db.properties
+application-oauth.properties

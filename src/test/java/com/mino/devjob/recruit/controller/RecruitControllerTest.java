@@ -1,11 +1,14 @@
 package com.mino.devjob.recruit.controller;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -18,6 +21,7 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(RecruitController.class)
+@WithMockUser
 class RecruitControllerTest {
 	@MockBean
 	private RecruitService recruitService;
@@ -67,7 +71,7 @@ class RecruitControllerTest {
 		Mockito.when(recruitService.update(Mockito.eq(recruit)))
 			.thenReturn(Mono.just(recruit2));
 
-		webTestClient.put()
+		webTestClient.mutateWith(csrf()).put()
 			.uri("/api/recruits/")
 			.body(Mono.just(recruit), Recruit.class)
 			.exchange()

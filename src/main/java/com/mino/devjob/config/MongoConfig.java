@@ -3,7 +3,7 @@ package com.mino.devjob.config;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexResolver;
 import org.springframework.data.mongodb.core.mapping.BasicMongoPersistentEntity;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Configuration
 public class MongoConfig {
-	private final MongoTemplate mongoTemplate;
+	private final ReactiveMongoTemplate mongoTemplate;
 
 	private final MongoConverter mongoConverter;
 

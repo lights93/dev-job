@@ -1,10 +1,6 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/recruit">Recruit</router-link> |
-      <router-link to="/book">Book</router-link>
-    </div>
+    <recruit-nav></recruit-nav>
     <router-view/>
   </div>
 </template>
@@ -19,11 +15,11 @@
 }
 
 #nav {
-  padding: 30px;
+  margin-bottom: 30px;
 
   a {
     font-weight: bold;
-    color: #2c3e50;
+    /*color: #2c3e50;*/
 
     &.router-link-exact-active {
       color: #42b983;
@@ -31,3 +27,15 @@
   }
 }
 </style>
+
+<script>
+  // @ is an alias to /src
+  import RecruitNav from '@/components/RecruitNav.vue'
+
+  export default {
+    name: 'app',
+    components: {
+      RecruitNav
+    }
+  }
+</script>
