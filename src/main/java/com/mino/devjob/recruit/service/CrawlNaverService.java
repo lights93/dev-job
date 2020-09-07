@@ -1,8 +1,6 @@
 package com.mino.devjob.recruit.service;
 
-import javax.annotation.PostConstruct;
-import javax.net.ssl.SSLException;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -15,6 +13,7 @@ import com.mino.devjob.recruit.model.Recruit;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.netty.http.client.HttpClient;
@@ -22,12 +21,12 @@ import reactor.netty.http.client.HttpClient;
 @Service("NAVER")
 @Slf4j
 public class CrawlNaverService implements CrawlService {
-	private WebClient webClient;
+	private final WebClient webClient;
 
-	// SSL 에러가 생겨서 추가
-	// https://stackoverflow.com/questions/45418523/spring-5-webclient-using-ssl
-	@PostConstruct
-	public void createWebClient() throws SSLException {
+	@SneakyThrows
+	@Autowired
+	public CrawlNaverService(WebClient webClient) {
+		// https://stackoverflow.com/questions/45418523/spring-5-webclient-using-ssl
 		SslContext sslContext = SslContextBuilder
 			.forClient()
 			.trustManager(InsecureTrustManagerFactory.INSTANCE)
@@ -36,7 +35,10 @@ public class CrawlNaverService implements CrawlService {
 		HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
 		ClientHttpConnector httpConnector = new ReactorClientHttpConnector(httpClient);
 
-		webClient = WebClient.builder().baseUrl("https://recruit.navercorp.com").clientConnector(httpConnector).build();
+		this.webClient = webClient.mutate()
+			.baseUrl("https://recruit.navercorp.com")
+			.clientConnector(httpConnector)
+			.build();
 	}
 
 	@Override

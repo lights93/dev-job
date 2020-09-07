@@ -7,13 +7,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.recruit.dto.WoowaRecruitDto;
 import com.mino.devjob.recruit.model.Recruit;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+@RequiredArgsConstructor
 @Service("WOOWA")
 @Slf4j
 public class CrawlWoowaService implements CrawlService {
-	private final WebClient webClient = WebClient.create("https://woowahan.com");
+	private final WebClient webClient;
 
 	@Override
 	public Flux<Recruit> crawl() {
@@ -25,6 +27,8 @@ public class CrawlWoowaService implements CrawlService {
 		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
+				.scheme("https")
+				.host("woowahan.com")
 				.pathSegment("jobapi", "jobs", "list")
 				.queryParam("searchword", "")
 				.queryParam("cc", "244001")

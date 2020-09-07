@@ -15,17 +15,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Service("KAKAO")
 @Slf4j
 public class CrawlKakaoService implements CrawlService {
-	private static final String KAKAO_RECRUIT_URL = "https://careers.kakao.com";
+	private static final String KAKAO_RECRUIT_HOST = "careers.kakao.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
-	private final WebClient webClient = WebClient.create(KAKAO_RECRUIT_URL);
+	private final WebClient webClient;
 
 	@Override
 	public Flux<Recruit> crawl() {
@@ -37,7 +39,7 @@ public class CrawlKakaoService implements CrawlService {
 		return getKakaoDocument(1)
 			.onErrorContinue((error, element) -> log.error("get kakao error!! page: 1", error))
 			.map(document -> document.select(".link_job.link_job1 .emph_num").text().trim())
-			.map(pages -> (Integer.parseInt(pages) + 10 - 1) / 10);
+			.map(pages -> (Integer.parseInt(pages) + 15 - 1) / 15);
 	}
 
 	private Flux<Recruit> crawlKakao(int pageCount) {
@@ -51,6 +53,8 @@ public class CrawlKakaoService implements CrawlService {
 		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
+				.scheme("https")
+				.host(KAKAO_RECRUIT_HOST)
 				.path("jobs")
 				.queryParam("part", "TECHNOLOGY")
 				.queryParam("page", Integer.toString(page))
@@ -94,7 +98,7 @@ public class CrawlKakaoService implements CrawlService {
 
 				String tags = String.join(", ", tagTexts.eachText());
 
-				String link = KAKAO_RECRUIT_URL + links.get(i).attr("href").trim();
+				String link = "https://" + KAKAO_RECRUIT_HOST + links.get(i).attr("href").trim();
 
 				int startIdx = link.indexOf("-") + 1;
 				int endIdx = link.indexOf("?");

@@ -15,13 +15,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.mino.devjob.recruit.dto.DaangnRequestDto;
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service("DAANGN")
 public class CrawlDaangnService implements CrawlService {
-	private static final String DAANGN_RECRUIT_URL = "https://www.notion.so";
+	private static final String DAANGN_RECRUIT_HOST = "www.notion.so";
 	private static final Pattern BRACKETS_PATTERN = Pattern.compile("\\((.*?)\\)");
 	private static final DaangnRequestDto DAANGN_REQUEST_DTO =
 		DaangnRequestDto.builder()
@@ -31,7 +33,7 @@ public class CrawlDaangnService implements CrawlService {
 			.verticalColumns(false)
 			.build();
 
-	private final WebClient webClient = WebClient.create(DAANGN_RECRUIT_URL);
+	private final WebClient webClient;
 
 	@Override
 	public Flux<Recruit> crawl() {
@@ -43,6 +45,8 @@ public class CrawlDaangnService implements CrawlService {
 		return webClient
 			.post()
 			.uri(uriBuilder -> uriBuilder
+				.scheme("https")
+				.host(DAANGN_RECRUIT_HOST)
 				.pathSegment("api", "v3", "loadPageChunk")
 				.build())
 			.contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +96,7 @@ public class CrawlDaangnService implements CrawlService {
 			.index((long)valueMap.get("created_time"))
 			.company(CompanyType.DAANGN.name())
 			.title(title)
-			.link(DAANGN_RECRUIT_URL + "/07ca1fda22584d60a48ef43a8cf9bab0")
+			.link("https://" + DAANGN_RECRUIT_HOST + "/07ca1fda22584d60a48ef43a8cf9bab0")
 			.jobType(jobType)
 			.term(end)
 			.companyType(CompanyType.DAANGN.name())

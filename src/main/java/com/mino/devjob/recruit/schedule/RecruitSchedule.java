@@ -11,6 +11,7 @@ import com.mino.devjob.recruit.type.CompanyType;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 @Component
@@ -18,6 +19,7 @@ import reactor.core.scheduler.Schedulers;
 public class RecruitSchedule {
 	private final Map<CompanyType, CrawlService> crawlServiceMap;
 	private final RecruitService recruitService;
+	private static final Scheduler SCHEDULER = Schedulers.boundedElastic();
 
 	@Scheduled(fixedDelay = 60 * 60 * 1000) // 1 hour
 	public void refreshRecruit() {
@@ -31,7 +33,7 @@ public class RecruitSchedule {
 			.collectList()
 			.flatMapMany(recruitService::saveAll)
 			.collectList()
-			.subscribeOn(Schedulers.boundedElastic())
+			.subscribeOn(SCHEDULER)
 			.subscribe();
 	}
 }

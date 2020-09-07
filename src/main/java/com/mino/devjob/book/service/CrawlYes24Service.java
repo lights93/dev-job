@@ -10,26 +10,23 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.book.model.Book;
 import com.mino.devjob.book.type.Yes24CategoryType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class CrawlYes24Service {
-	private static final String YES24_URL = "http://www.yes24.com";
+	private static final String YES24_HOST = "www.yes24.com";
 	private static final Pattern NUMBER_PART_PATTERN = Pattern.compile("\\d+");
 
-	private final WebClient webClient = WebClient.builder()
-		.baseUrl(YES24_URL)
-		.exchangeStrategies(ExchangeStrategies.builder()
-			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024)).build())
-		.build();
+	private final WebClient webClient;
 
 	public Flux<Book> crawl() {
 		return Flux.fromArray(Yes24CategoryType.values())
@@ -43,6 +40,8 @@ public class CrawlYes24Service {
 		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
+				.scheme("http")
+				.host(YES24_HOST)
 				.pathSegment("24", "Category", "Display", code)
 				.queryParam("ParamSortTp", "04") // 신상품 순 정렬
 				.queryParam("FetchSize", "50")
@@ -69,7 +68,7 @@ public class CrawlYes24Service {
 			.map(i -> {
 				String name = goodsNames.get(i).text().trim();
 
-				String link = YES24_URL + goodsNames.get(i).attr("href").trim();
+				String link = "http://" + YES24_HOST + goodsNames.get(i).attr("href").trim();
 
 				int startIdx = link.lastIndexOf("/") + 1;
 				long id = Long.parseLong(link.substring(startIdx));

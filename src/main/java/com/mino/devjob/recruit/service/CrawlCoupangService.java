@@ -10,16 +10,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.recruit.type.CompanyType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service("COUPANG")
 public class CrawlCoupangService implements CrawlService {
-	private static final String COUPANG_RECRUIT_URL = "https://rocketyourcareer.kr.coupang.com";
+	private static final String COUPANG_RECRUIT_HOST = "rocketyourcareer.kr.coupang.com";
 
-	private final WebClient webClient = WebClient.create(COUPANG_RECRUIT_URL);
+	private final WebClient webClient;
 
 	@Override
 	public Flux<Recruit> crawl() {
@@ -32,13 +34,15 @@ public class CrawlCoupangService implements CrawlService {
 			.onErrorContinue((error, element) -> log.error("get coupang error!! page: 1", error))
 			.map(document -> document.select(".result-count-number").text().trim())
 			.map(Integer::parseInt)
-			.map(count -> count / 10);
+			.map(count -> ((count + 15 - 1) / 15));
 	}
 
 	private Mono<Document> getCoupangDocument(int page) {
 		return webClient
 			.get()
 			.uri(uriBuilder -> uriBuilder
+				.scheme("https")
+				.host(COUPANG_RECRUIT_HOST)
 				.path("%EA%B2%80%EC%83%89-%EC%A7%81%EB%AC%B4/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD")
 				.queryParam("orgIds", "24450")
 				.queryParam("alp", "1835841")
@@ -68,7 +72,7 @@ public class CrawlCoupangService implements CrawlService {
 
 		return Flux.range(0, cnt)
 			.map(i -> {
-				String link = COUPANG_RECRUIT_URL + links.get(i).attr("href").trim();
+				String link = "https://" + COUPANG_RECRUIT_HOST + links.get(i).attr("href").trim();
 				String idStr = link.substring(link.lastIndexOf('/') + 1);
 				int id = Integer.parseInt(idStr);
 
