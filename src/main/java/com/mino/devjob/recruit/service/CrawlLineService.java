@@ -61,7 +61,7 @@ public class CrawlLineService implements CrawlService {
 
 	private Recruit buildLineRecruit(Elements tds) {
 		Element titleEl = tds.get(1);
-		String link = "https" + LINE_RECRUIT_HOST + titleEl.select("a").attr("href").trim();
+		String link = "https://" + LINE_RECRUIT_HOST + titleEl.select("a").attr("href").trim();
 
 		int startIdx = link.indexOf("/detail/") + 8;
 		int endIdx = link.indexOf("?classId");

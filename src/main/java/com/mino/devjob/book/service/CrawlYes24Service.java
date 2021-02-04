@@ -53,14 +53,14 @@ public class CrawlYes24Service {
 	}
 
 	private Flux<Book> buildYes24Book(Document document) {
-		final Elements goodsNames = document.select(".goods_name a:not(.bgYUI)");
+		final Elements goodsNames = document.select("#category_layout .goods_name a:not(.bgYUI)");
 
-		final Elements intros = document.select(".goods_name .gd_nameE");
+		final Elements intros = document.select("#category_layout .goods_name .gd_nameE");
 
-		final Elements authors = document.select(".goods_pubGrp .goods_auth");
-		final Elements publishers = document.select(".goods_pubGrp .goods_pub");
-		final Elements dates = document.select(".goods_pubGrp .goods_date");
-		final Elements prices = document.select(".goods_price .yes_b");
+		final Elements authors = document.select("#category_layout .goods_pubGrp .goods_auth");
+		final Elements publishers = document.select("#category_layout .goods_pubGrp .goods_pub");
+		final Elements dates = document.select("#category_layout .goods_pubGrp .goods_date");
+		final Elements prices = document.select("#category_layout .goods_price .yes_b");
 
 		final int cnt = goodsNames.size();
 
