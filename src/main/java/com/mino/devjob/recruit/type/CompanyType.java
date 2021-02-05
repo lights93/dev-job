@@ -7,5 +7,6 @@ public enum CompanyType {
 	LINE,
 	WOOWA,
 	COUPANG,
-	DAANGN
+	DAANGN,
+	TOSS
 }

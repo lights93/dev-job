@@ -1,5 +1,6 @@
 package com.mino.devjob.recruit.service;
 
+import java.util.List;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.mino.devjob.recruit.dto.TossRecruitDto;
 import com.mino.devjob.recruit.model.Recruit;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,10 +33,21 @@ public class CrawlTossServiceTest {
 
 	@Test
 	void crawl() throws Exception {
-//		Mockito.when(webClientMock.get()).thenReturn(requestHeadersUriMock);
-//		Mockito.when(requestHeadersUriMock.uri(Mockito.any(Function.class))).thenReturn(requestHeadersMock);
-//		Mockito.when(requestHeadersMock.retrieve()).thenReturn(responseMock);
-//		Mockito.when(responseMock.bodyToMono(String.class)).thenReturn(Mono.just(str));
+		List<TossRecruitDto.Job> jobs = List.of(TossRecruitDto.Job.builder()
+			.metadata(List.of(TossRecruitDto.Metadata.builder()
+				.id(4168924003L)
+				.value("Engineering")
+				.build()))
+			.build());
+
+		TossRecruitDto tossRecruitDto = TossRecruitDto.builder()
+			.jobs(jobs)
+			.build();
+
+		Mockito.when(webClientMock.get()).thenReturn(requestHeadersUriMock);
+		Mockito.when(requestHeadersUriMock.uri(Mockito.any(Function.class))).thenReturn(requestHeadersMock);
+		Mockito.when(requestHeadersMock.retrieve()).thenReturn(responseMock);
+		Mockito.when(responseMock.bodyToMono(TossRecruitDto.class)).thenReturn(Mono.just(tossRecruitDto));
 
 		// TODO api https://toss.im/careers/api/greenhouse/jobs
 		// absolute_url
@@ -45,7 +58,7 @@ public class CrawlTossServiceTest {
 		// 4194643003 -> 키워
 
 		Flux<Recruit> tossRecruitList = crawlTossService.crawl();
-
+		//
 		StepVerifier.create(tossRecruitList)
 			.expectNextCount(2)
 			.verifyComplete();

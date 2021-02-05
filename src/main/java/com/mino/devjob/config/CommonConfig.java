@@ -11,7 +11,7 @@ public class CommonConfig {
 	public WebClient webClient() {
 		return WebClient.builder()
 			.exchangeStrategies(ExchangeStrategies.builder()
-				.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024)).build())
+				.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024 * 1024)).build())
 			.build();
 	}
 }
