@@ -41,7 +41,7 @@
             </b-form-group>
 
 
-            <!--<b-button type="submit" variant="primary">검색</b-button>-->
+            <b-button type="submit" variant="primary">검색</b-button>
             <b-button type="reset" variant="danger">초기화</b-button>
         </b-form>
     </b-container>
@@ -62,20 +62,8 @@
                     term: '',
                     favorite: 'ALL'
                 },
+                oldCompany: 'ALL'
             }
-        },
-        watch: {
-            computedForm: {
-                deep: true,
-                handler(n, o) {
-                    if(n.company !== o.company) {
-                        this.$emit('searchRecruits', Object.assign({}, this.form));
-                    } else {
-                        this.$emit('filterList', Object.assign({}, this.form));
-                    }
-
-                }
-            },
         },
         computed: {
             computedForm: function() {
@@ -88,7 +76,12 @@
         methods: {
             onSubmit(evt) {
                 evt.preventDefault();
-                this.$emit('searchRecruits', this.form);
+                if(this.form.company !== this.oldCompany) {
+                    this.$emit('searchRecruits', Object.assign({}, this.form));
+                    this.oldCompany = this.form.company;
+                } else {
+                    this.$emit('filterList', Object.assign({}, this.form));
+                }
             },
             onReset(evt) {
                 evt.preventDefault();

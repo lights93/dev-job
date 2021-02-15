@@ -42,6 +42,7 @@
                 </b-form-radio-group>
             </b-form-group>
 
+            <b-button type="submit" variant="primary">검색</b-button>
             <b-button type="reset" variant="danger">초기화</b-button>
         </b-form>
     </b-container>
@@ -65,14 +66,6 @@
                 },
             }
         },
-        watch: {
-            computedForm: {
-                deep: true,
-                handler() {
-                    this.$emit('filterList', Object.assign({}, this.form));
-                }
-            },
-        },
         computed: {
             computedForm: function () {
                 return Object.assign({}, this.form);
@@ -84,6 +77,7 @@
         methods: {
             onSubmit(evt) {
                 evt.preventDefault();
+                this.$emit('filterList', Object.assign({}, this.form));
             },
             onReset(evt) {
                 evt.preventDefault();
