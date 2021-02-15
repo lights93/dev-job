@@ -1,5 +1,6 @@
 <template>
     <b-container fluid>
+        <b-nav-text style="float: right">개수: {{items.length}}개</b-nav-text>
         <b-table striped hover :items="items" :fields="fields" responsive="sm" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc">
             <template v-slot:cell(title)="data">
                 <b-link :href="data.item.link" target="_blank">
