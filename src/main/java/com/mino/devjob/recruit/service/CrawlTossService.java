@@ -29,9 +29,10 @@ public class CrawlTossService implements CrawlService {
 
 		this.webClient = webClient.mutate()
 			.exchangeStrategies(ExchangeStrategies.builder()
-				.codecs(
-					configurer -> configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(newMapper)))
-				.build())
+				.codecs(configurer -> {
+						configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(newMapper));
+						configurer.defaultCodecs().maxInMemorySize(Integer.MAX_VALUE);
+				}).build())
 			.build();
 	}
 
