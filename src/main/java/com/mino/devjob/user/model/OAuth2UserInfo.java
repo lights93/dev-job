@@ -1,6 +1,7 @@
 package com.mino.devjob.user.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,8 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
+import com.mino.devjob.book.model.Book;
+import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.user.type.AuthProvider;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,9 +44,9 @@ public abstract class OAuth2UserInfo implements OidcUser, Serializable {
 
 	protected Map<String, Object> attributes;
 
-	protected List<ObjectId> interesting;
+	protected List<Recruit> recruits;
 
-	protected List<ObjectId> notInterested;
+	protected List<Book> books;
 
 	protected OAuth2UserInfo(Map<String, Object> attributes) {
 		this.attributes = attributes;
@@ -75,19 +78,19 @@ public abstract class OAuth2UserInfo implements OidcUser, Serializable {
 		return null;
 	}
 
-//	public OAuth2UserInfo update(final OAuth2UserInfoDto.UpdateDto updateDto) {
-//		if (updateDto.getNickName() != null) {
-//			this.nickName = updateDto.getNickName();
-//		}
-//		if (updateDto.getImage() != null) {
-//			if (updateDto.getImage().startsWith("http")) {
-//				this.image = updateDto.getImage();
-//			} else {
-//				this.image = "";
-//			}
-//		}
-//		return this;
-//	}
+	public void addRecruit(Recruit recruit) {
+		if (this.recruits == null) {
+			this.recruits = new ArrayList<>();
+		}
 
+		this.recruits.add(recruit);
+	}
 
+	public void addBook(Book book) {
+		if (this.books == null) {
+			this.books = new ArrayList<>();
+		}
+
+		this.books.add(book);
+	}
 }

@@ -7,10 +7,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.mino.devjob.recruit.model.Recruit;
 import com.mino.devjob.user.model.OAuth2UserInfo;
-import com.mino.devjob.user.type.OAuth2UserInfoFactory;
 import com.mino.devjob.user.repository.OAuth2UserInfoRepository;
+import com.mino.devjob.user.type.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -27,17 +26,11 @@ public class CustomReactiveOAuth2UserService implements ReactiveOAuth2UserServic
 		Mono<OAuth2User> oAuth2User = delegate.loadUser(userRequest);
 
 		return oAuth2User.flatMap(e -> {
-			OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(clientRegistrationId, e.getAttributes());
+			OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(clientRegistrationId,
+				e.getAttributes());
 			return oAuth2UserInfoRepository
 				.findByName(oAuth2UserInfo.getName())
 				.switchIfEmpty(Mono.defer(() -> oAuth2UserInfoRepository.save(oAuth2UserInfo)));
 		});
 	}
-
-//	public void test(OAuth2UserInfo oAuth2UserInfo, Recruit recruit) {
-//		oAuth2UserInfoRepository.findByName(oAuth2UserInfo.getName())
-//			.map(user -> {
-//				user.getInteresting().add(recruit.getObjectId())
-//			})
-//	}
 }

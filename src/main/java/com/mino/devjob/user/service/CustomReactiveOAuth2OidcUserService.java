@@ -8,8 +8,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import com.mino.devjob.user.model.OAuth2UserInfo;
-import com.mino.devjob.user.type.OAuth2UserInfoFactory;
 import com.mino.devjob.user.repository.OAuth2UserInfoRepository;
+import com.mino.devjob.user.type.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
