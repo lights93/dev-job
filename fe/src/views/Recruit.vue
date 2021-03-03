@@ -20,6 +20,7 @@
                 companies: []
             }
         },
+        props: ["userRecruits"],
         mounted: function () {
             this.getCompanies();
         },
@@ -83,7 +84,15 @@
                     .then((result) => {
                         vm.companies = result.data;
                     });
-            }
+            },
+
+            // updateFavorite: function () {
+            //     const vm = this;
+            //     immutable js 활용?
+                //
+                //
+                // this.userRecruits
+            // }
         }
     }
 </script>

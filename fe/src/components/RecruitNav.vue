@@ -38,26 +38,27 @@
 <script>
     export default {
         name: 'recruitNav',
-        data: function () {
-            return {
-                user: undefined
-            }
-        },
-        mounted: function () {
-            this.getUser();
-        },
+        props: ["user"],
+        // data: function () {
+        //     return {
+        //         user: undefined
+        //     }
+        // },
+        // mounted: function () {
+            // this.getUser();
+        // },
         methods: {
-            getUser: function () {
-                const vm = this;
-
-                this.axios.get("/api/user")
-                    .then((result) => {
-                        console.log(result);
-                        vm.user = result.data.name;
-                        console.log(vm.user);
-
-                    })
-            },
+            // getUser: function () {
+            //     const vm = this;
+            //
+            //     this.axios.get("/api/user")
+            //         .then((result) => {
+            //             console.log(result);
+            //             vm.user = result.data.name;
+            //             console.log(vm.user);
+            //
+            //         })
+            // },
 
             signIn: function () {
                 location.href="/auth/login";

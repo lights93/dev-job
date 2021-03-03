@@ -57,7 +57,7 @@
 
                 item.favorite = favorite;
 
-                this.axios.put("/api/recruits", item)
+                this.axios.put("/api/user/recruit", item)
                     .then(() => {
                         this.items.splice(index, 1, item);
                     })

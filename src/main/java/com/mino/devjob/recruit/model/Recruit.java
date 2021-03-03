@@ -31,4 +31,5 @@ public class Recruit {
 	private final String companyType; // 계열사
 	private final String tags; // 태그
 	private final int favorite; // 관심
+
 }

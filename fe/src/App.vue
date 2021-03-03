@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <recruit-nav></recruit-nav>
-    <router-view/>
+    <recruit-nav :user="user.name"></recruit-nav>
+    <router-view :userRecruits="user.recruits"/>
   </div>
 </template>
 
@@ -36,6 +36,27 @@
     name: 'app',
     components: {
       RecruitNav
+    },
+    data: function () {
+      return {
+        user: {
+          "name": undefined,
+          "recruits": []
+        }
+      }
+    },
+    mounted: function () {
+      this.getUser();
+    },
+    methods: {
+      getUser: function () {
+        const vm = this;
+
+        this.axios.get("/api/user")
+                .then((result) => {
+                  vm.user = result.data;
+                })
+      }
     }
   }
 </script>
