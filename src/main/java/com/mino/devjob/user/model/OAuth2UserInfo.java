@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -82,6 +83,10 @@ public abstract class OAuth2UserInfo implements OidcUser, Serializable {
 		if (this.recruits == null) {
 			this.recruits = new ArrayList<>();
 		}
+
+		this.recruits = this.recruits.stream()
+			.filter(r -> !(r.getCompany().equals(recruit.getCompany()) && r.getIndex() == recruit.getIndex()))
+			.collect(Collectors.toList());
 
 		this.recruits.add(recruit);
 	}

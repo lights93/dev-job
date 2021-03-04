@@ -30,6 +30,7 @@
                 vm.axios.get("/api/recruits/" + params.company)
                     .then((result) => {
                         vm.recruits = result.data;
+                        vm.updateFavorite();
                         vm.filterList(params);
                     });
             },
@@ -77,6 +78,24 @@
                     });
             },
 
+            updateFavorite: function () {
+                const map = new Map();
+
+                this.userRecruits.forEach(item => {
+                    map.set(item.company + item.index, item.favorite);
+                });
+
+
+                this.recruits.map((item) => {
+                    let key = item.company + item.index;
+                    if(map.has(key)) {
+                        item.favorite = map.get(key);
+                    } else {
+                        item.favorite = 0;
+                    }
+                })
+            },
+
             getCompanies: function () {
                 const vm = this;
 
@@ -85,14 +104,6 @@
                         vm.companies = result.data;
                     });
             },
-
-            // updateFavorite: function () {
-            //     const vm = this;
-            //     immutable js 활용?
-                //
-                //
-                // this.userRecruits
-            // }
         }
     }
 </script>
