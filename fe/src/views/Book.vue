@@ -19,14 +19,36 @@
                 filteredBooks: []
             }
         },
+        props: ["userBooks"],
         methods: {
             searchBooks: function () {
                 const vm = this;
                 vm.axios.get("/api/books/")
                     .then((result) => {
                         vm.books = result.data;
-                        vm.filteredBooks = result.data;
+                        vm.updateFavorite();
+                        vm.filteredBooks = vm.books;
                     });
+            },
+
+            updateFavorite: function () {
+                if(!this.userBooks) {
+                    return;
+                }
+                const map = new Map();
+
+                this.userBooks.forEach(item => {
+                    map.set(item.id, item.favorite);
+                });
+
+                this.books.map((item) => {
+                    let key = item.id;
+                    if(map.has(key)) {
+                        item.favorite = map.get(key);
+                    } else {
+                        item.favorite = 0;
+                    }
+                })
             },
 
             filterList: function (params) {

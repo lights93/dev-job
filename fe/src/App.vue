@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <recruit-nav :user="user.name"></recruit-nav>
-    <router-view :userRecruits="user.recruits"/>
+    <router-view :userRecruits="user.recruits" :userBooks="user.books"/>
   </div>
 </template>
 
@@ -41,7 +41,8 @@
       return {
         user: {
           "name": undefined,
-          "recruits": []
+          "recruits": [],
+          "books": [],
         }
       }
     },
@@ -55,7 +56,7 @@
         this.axios.get("/api/user")
                 .then((result) => {
                   vm.user = result.data;
-                })
+                });
       }
     }
   }

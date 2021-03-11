@@ -96,6 +96,10 @@ public abstract class OAuth2UserInfo implements OidcUser, Serializable {
 			this.books = new ArrayList<>();
 		}
 
+		this.books = this.books.stream()
+			.filter(b -> !(b.getId() == book.getId()))
+			.collect(Collectors.toList());
+
 		this.books.add(book);
 	}
 }

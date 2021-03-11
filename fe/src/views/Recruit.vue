@@ -79,6 +79,10 @@
             },
 
             updateFavorite: function () {
+                if(!this.userRecruits) {
+                    return;
+                }
+
                 const map = new Map();
 
                 this.userRecruits.forEach(item => {
