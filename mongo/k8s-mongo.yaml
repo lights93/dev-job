@@ -35,6 +35,8 @@ spec:
       containers:
       - name: mongo-db
         image: mongo:latest
+        securityContext:
+          runAsUser: 501
         ports:
         - containerPort: 27017
         volumeMounts:
@@ -44,5 +46,5 @@ spec:
       volumes:
       - name: mongodb-vol
         hostPath:
-          path: /Users/user/projects/devjob/mongo/db
+          path: /Users/user/projects/my/dev-job/mongo/db
           type: Directory
