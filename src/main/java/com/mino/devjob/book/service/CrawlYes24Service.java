@@ -66,30 +66,27 @@ public class CrawlYes24Service {
 
 		return Flux.range(0, cnt)
 			.map(i -> {
-				String name = goodsNames.get(i).text().trim();
-
 				String link = "http://" + YES24_HOST + goodsNames.get(i).attr("href").trim();
-
-				String date = dates.get(i).text().trim();
-
-				List<String> matchList = NUMBER_PART_PATTERN.matcher(date).results()
-					.map(MatchResult::group)
-					.collect(Collectors.toList());
-
-				LocalDate publishDate = LocalDate.of(Integer.parseInt(matchList.get(0)),
-					Integer.parseInt(matchList.get(1)), 1);
 
 				return Book.builder()
 					.id(Long.parseLong(link.substring(link.lastIndexOf("/") + 1)))
-					.name(name)
+					.name(goodsNames.get(i).text().trim())
 					.intro(intros.get(i).text().trim())
 					.link(link)
 					.author(authors.get(i).text().trim())
-					.publishDate(publishDate)
+					.publishDate(getPublishDate(dates.get(i).text().trim()))
 					.publisher(publishers.get(i).text().trim())
 					.price(Integer.parseInt(prices.get(i).text().trim().replace(",", "")))
 					.build();
 			});
+	}
+
+	private LocalDate getPublishDate(String date) {
+		List<String> matchList = NUMBER_PART_PATTERN.matcher(date).results()
+			.map(MatchResult::group)
+			.collect(Collectors.toList());
+
+		return LocalDate.of(Integer.parseInt(matchList.get(0)), Integer.parseInt(matchList.get(1)), 1);
 	}
 }
 
