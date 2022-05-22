@@ -13,11 +13,13 @@ import reactor.core.scheduler.Schedulers;
 @Component
 @RequiredArgsConstructor
 public class BookSchedule {
+	private static final Scheduler SCHEDULER = Schedulers.boundedElastic();
+	private static final int ONE_HOUR_IN_SECONDS = 60 * 60 * 1000;
+
 	private final BookService bookService;
 	private final CrawlYes24Service crawlYes24Service;
-	private static final Scheduler SCHEDULER = Schedulers.boundedElastic();
 
-	@Scheduled(fixedDelay = 60 * 60 * 1000) // 1 hour
+	@Scheduled(fixedDelay = ONE_HOUR_IN_SECONDS) // 1 hour
 	public void saveBooks() {
 		bookService.saveAll(crawlYes24Service.crawl())
 			.subscribeOn(SCHEDULER)

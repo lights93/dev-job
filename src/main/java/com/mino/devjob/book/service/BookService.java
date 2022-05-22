@@ -14,12 +14,14 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class BookService {
+	private static final int NOT_FAVORITE = 0;
+
 	private final BookRepository bookRepository;
 
 	public Mono<List<Book>> saveAll(Flux<Book> bookFlux) {
 		return bookFlux
 			.distinct(Book::getId)
-			.filterWhen(book -> bookRepository.existsByIdAndFavoriteIsNot(book.getId(), 0).map(b -> !b))
+			.filterWhen(book -> bookRepository.existsByIdAndFavoriteIsNot(book.getId(), NOT_FAVORITE).map(b -> !b))
 			.collectList()
 			.flatMapMany(bookRepository::saveAll)
 			.collectList();
