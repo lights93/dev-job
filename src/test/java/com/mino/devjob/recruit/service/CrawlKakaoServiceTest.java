@@ -1,14 +1,20 @@
 package com.mino.devjob.recruit.service;
 
+import static org.mockito.Mockito.*;
+
+import java.net.URI;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 
 import com.mino.devjob.recruit.model.Recruit;
 import reactor.core.publisher.Flux;
@@ -19,21 +25,15 @@ import reactor.test.StepVerifier;
 class CrawlKakaoServiceTest {
 	@InjectMocks
 	private CrawlKakaoService crawlKakao;
-	@Mock
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
 	private WebClient webClientMock;
-	@Mock
-	private WebClient.RequestHeadersSpec requestHeadersMock;
-	@Mock
-	private WebClient.RequestHeadersUriSpec requestHeadersUriMock;
-	@Mock
-	private WebClient.ResponseSpec responseMock;
 
 	@Test
 	void crawl() {
-		Mockito.when(webClientMock.get()).thenReturn(requestHeadersUriMock);
-		Mockito.when(requestHeadersUriMock.uri(Mockito.any(Function.class))).thenReturn(requestHeadersMock);
-		Mockito.when(requestHeadersMock.retrieve()).thenReturn(responseMock);
-		Mockito.when(responseMock.bodyToMono(String.class)).thenReturn(Mono.just(str));
+		when(webClientMock.get()
+			.uri(ArgumentMatchers.<Function<UriBuilder, URI>>any())
+			.retrieve().bodyToMono(ArgumentMatchers.<Class<String>>any()))
+			.thenReturn(Mono.just(str));
 
 		Flux<Recruit> kakaoRecruits = crawlKakao.crawl();
 
@@ -42,7 +42,7 @@ class CrawlKakaoServiceTest {
 			.verifyComplete();
 	}
 
-	private String str = "\n"
+	private final String str = "\n"
 		+ "<!doctype html>\n"
 		+ "<html lang=\"ko\">\n"
 		+ "<body class=\"ko\">\n"

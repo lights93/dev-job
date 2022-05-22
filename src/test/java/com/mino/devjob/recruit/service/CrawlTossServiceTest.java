@@ -1,11 +1,18 @@
 package com.mino.devjob.recruit.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+import java.net.URI;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -13,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mino.devjob.recruit.dto.TossRecruitDto;
@@ -22,25 +30,17 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class CrawlTossServiceTest {
+class CrawlTossServiceTest {
 	private CrawlTossService crawlTossService;
 
-	@Mock
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
 	private WebClient webClientMock;
-	@Mock
-	private WebClient.RequestHeadersSpec requestHeadersMock;
-	@Mock
-	private WebClient.RequestHeadersUriSpec requestHeadersUriMock;
-	@Mock
-	private WebClient.ResponseSpec responseMock;
-	@Mock
-	private WebClient.Builder builderMock;
 
 	@Mock
 	private ObjectMapper mapper;
 
 	@Test
-	void crawl() throws Exception {
+	void crawl() {
 		List<TossRecruitDto.Job> jobs = List.of(TossRecruitDto.Job.builder()
 			.metadata(List.of(TossRecruitDto.Metadata.builder()
 				.id(4168924003L)
@@ -52,15 +52,16 @@ public class CrawlTossServiceTest {
 			.jobs(jobs)
 			.build();
 
-		Mockito.when(webClientMock.mutate()).thenReturn(builderMock);
-		Mockito.when(builderMock.exchangeStrategies(Mockito.any(ExchangeStrategies.class))).thenReturn(builderMock);
-		Mockito.when(builderMock.build()).thenReturn(webClientMock);
+		when(webClientMock.mutate()
+			.exchangeStrategies(any(ExchangeStrategies.class))
+			.build()).thenReturn(webClientMock);
+
 		Mockito.when(mapper.copy()).thenReturn(new ObjectMapper());
 
-		Mockito.when(webClientMock.get()).thenReturn(requestHeadersUriMock);
-		Mockito.when(requestHeadersUriMock.uri(Mockito.eq("https://toss.im/careers/api/greenhouse/jobs"))).thenReturn(requestHeadersMock);
-		Mockito.when(requestHeadersMock.retrieve()).thenReturn(responseMock);
-		Mockito.when(responseMock.bodyToMono(TossRecruitDto.class)).thenReturn(Mono.just(tossRecruitDto));
+		when(webClientMock.get()
+			.uri(anyString())
+			.retrieve().bodyToMono(ArgumentMatchers.<Class<TossRecruitDto>>any()))
+			.thenReturn(Mono.just(tossRecruitDto));
 
 		// TODO api https://toss.im/careers/api/greenhouse/jobs
 		// absolute_url

@@ -70,14 +70,6 @@ public class CrawlYes24Service {
 
 				String link = "http://" + YES24_HOST + goodsNames.get(i).attr("href").trim();
 
-				int startIdx = link.lastIndexOf("/") + 1;
-				long id = Long.parseLong(link.substring(startIdx));
-
-				String intro = intros.get(i).text().trim();
-				String author = authors.get(i).text().trim();
-				String publisher = publishers.get(i).text().trim();
-				int price = Integer.parseInt(prices.get(i).text().trim().replaceAll(",", ""));
-
 				String date = dates.get(i).text().trim();
 
 				List<String> matchList = NUMBER_PART_PATTERN.matcher(date).results()
@@ -88,14 +80,14 @@ public class CrawlYes24Service {
 					Integer.parseInt(matchList.get(1)), 1);
 
 				return Book.builder()
-					.id(id)
+					.id(Long.parseLong(link.substring(link.lastIndexOf("/") + 1)))
 					.name(name)
-					.intro(intro)
+					.intro(intros.get(i).text().trim())
 					.link(link)
-					.author(author)
+					.author(authors.get(i).text().trim())
 					.publishDate(publishDate)
-					.publisher(publisher)
-					.price(price)
+					.publisher(publishers.get(i).text().trim())
+					.price(Integer.parseInt(prices.get(i).text().trim().replace(",", "")))
 					.build();
 			});
 	}
