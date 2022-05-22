@@ -1,18 +1,21 @@
 package com.mino.devjob.book.schedule;
 
+import static org.mockito.Mockito.*;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mino.devjob.book.model.Book;
 import com.mino.devjob.book.service.BookService;
 import com.mino.devjob.book.service.CrawlYes24Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 class BookScheduleTest {
@@ -28,26 +31,16 @@ class BookScheduleTest {
 	@Test
 	void saveBooks() {
 		Book book = Book.builder().id(1L).build();
-		Book book2 = Book.builder().id(2L).build();
 
-		Flux<Book> bookFlux = Flux.just(book);
-		Flux<Book> bookFlux2 = Flux.just(book2);
+		when(crawlYes24Service.crawl())
+			.thenReturn(Flux.just(book));
 
-		Mockito.when(crawlYes24Service.crawl())
-			.thenReturn(bookFlux);
-
-//		Mockito.when(bookService.notExistsByIndexAndCompanyAndFavorite(Mockito.any(Book.class)))
-//			.thenReturn(Mono.just(true));
-//
-//		Mockito.when(bookService.saveAll(Mockito.eq(bookFlux.collectList().block())))
-//			.thenReturn(bookFlux2);
+		when(bookService.saveAll(any()))
+			.thenReturn(Mono.just(List.of(book)));
 
 		bookSchedule.saveBooks();
 
-//		Mockito.verify(crawlYes24Service, Mockito.times(1))
-//			.crawl();
-//
-//		Mockito.verify(bookService, Mockito.times(1))
-//			.saveAll(Mockito.eq(bookFlux.collectList().block()));
+		verify(crawlYes24Service, times(1)).crawl();
+		verify(bookService, times(1)).saveAll(any());
 	}
 }

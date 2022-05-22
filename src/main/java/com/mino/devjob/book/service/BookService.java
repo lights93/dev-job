@@ -16,8 +16,13 @@ import reactor.core.publisher.Mono;
 public class BookService {
 	private final BookRepository bookRepository;
 
-	public Flux<Book> saveAll(List<Book> bookList) {
-		return bookRepository.saveAll(bookList);
+	public Mono<List<Book>> saveAll(Flux<Book> bookFlux) {
+		return bookFlux
+			.distinct(Book::getId)
+			.filterWhen(book -> bookRepository.existsByIdAndFavoriteIsNot(book.getId(), 0).map(b -> !b))
+			.collectList()
+			.flatMapMany(bookRepository::saveAll)
+			.collectList();
 	}
 
 	public Flux<Book> getAll() {
@@ -30,9 +35,5 @@ public class BookService {
 
 	public Mono<Book> update(Book book) {
 		return bookRepository.save(book);
-	}
-
-	public Mono<Boolean> notExistsByIndexAndCompanyAndFavoriteIsNot(Book book, int favorite) {
-		return bookRepository.existsByIdAndFavoriteIsNot(book.getId(), favorite).map(b -> !b);
 	}
 }
